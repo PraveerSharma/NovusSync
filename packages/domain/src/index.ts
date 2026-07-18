@@ -354,3 +354,4 @@ function assertOrigin(origin: CommandOrigin): void {
 }
 
 export * from "./business-profile.ts";
+export * from "./source-proposal.ts";
