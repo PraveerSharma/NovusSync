@@ -20,13 +20,21 @@ test("operates the synthetic attention queue without external effects", async ({
   await page.getByRole("button", { name: /Amara Chen/ }).click();
   await expect(page.getByRole("heading", { level: 2, name: "Amara Chen" })).toBeVisible();
   await expect(page.getByText("Decision required: Welcome offer")).toBeVisible();
+  await expect(page.getByLabel("Amara Chen lifecycle progress")).toContainText("Outcome");
+
+  await page.getByRole("button", { name: "Review proposal" }).click();
+  await expect(
+    page.getByRole("heading", { level: 3, name: "Owner decision required" }),
+  ).toBeVisible();
+  await expect(page.getByText("None in Preview")).toBeVisible();
 
   await page.getByRole("searchbox", { name: "Search open leads" }).fill("no matching customer");
   await expect(page.getByText("No matching work.")).toBeVisible();
+  await page.getByRole("button", { name: "Clear queue filters" }).click();
+  await expect(page.getByRole("button", { name: /Maya Rao/ })).toBeVisible();
 });
 
 test("has a responsive, accessible dashboard surface", async ({ page }) => {
-  await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/dashboard");
 
   await expect(page.getByRole("main")).toBeVisible();

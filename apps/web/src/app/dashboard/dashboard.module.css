@@ -205,7 +205,7 @@
   gap: clamp(2rem, 7vw, 8rem);
   align-items: end;
   margin-bottom: 2.7rem;
-  animation: reveal 560ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation: reveal 180ms ease-out both;
 }
 
 .eyebrow,
@@ -330,19 +330,19 @@
   min-height: 160px;
   padding: 1.3rem 1.45rem;
   background: rgba(255, 255, 255, 0.58);
-  animation: reveal 500ms 80ms both;
+  animation: reveal 180ms 30ms ease-out both;
 }
 
 .metricCard:nth-child(2) {
-  animation-delay: 150ms;
+  animation-delay: 60ms;
 }
 
 .metricCard:nth-child(3) {
-  animation-delay: 220ms;
+  animation-delay: 90ms;
 }
 
 .metricCard:nth-child(4) {
-  animation-delay: 290ms;
+  animation-delay: 120ms;
 }
 
 .metricTopline {
@@ -403,7 +403,7 @@
 
 .queuePanel {
   overflow: hidden;
-  animation: reveal 540ms 280ms both;
+  animation: reveal 180ms 90ms ease-out both;
 }
 
 .panelHeader {
@@ -431,6 +431,20 @@
   align-items: center;
   padding: 0 1.15rem 1.1rem;
   border-bottom: 1px solid var(--line);
+}
+
+.queueResult {
+  margin: 0;
+  padding: 0.55rem 1.4rem;
+  border-bottom: 1px solid var(--line);
+  color: var(--muted);
+  background: rgba(20, 37, 31, 0.025);
+  font-size: 0.62rem;
+}
+
+.queueResult strong {
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
 }
 
 .filterBar {
@@ -554,7 +568,7 @@
 }
 
 .leadRowSelected {
-  background: linear-gradient(90deg, rgba(36, 102, 78, 0.1), rgba(255, 255, 255, 0.58));
+  background: rgba(36, 102, 78, 0.1);
   box-shadow: inset 3px 0 var(--moss);
 }
 
@@ -666,10 +680,23 @@
   font-size: 1rem;
 }
 
+.emptyState button {
+  margin-top: 0.55rem;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  color: var(--ink);
+  background: var(--paper);
+  font: inherit;
+  font-size: 0.68rem;
+  font-weight: 720;
+  cursor: pointer;
+}
+
 .sideRail {
   display: grid;
   gap: 1.25rem;
-  animation: reveal 540ms 350ms both;
+  animation: reveal 180ms 120ms ease-out both;
 }
 
 .focusCard,
@@ -729,7 +756,7 @@
 
 .focusMeta {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 0.5rem;
   margin: 0 0 1rem;
 }
@@ -742,7 +769,7 @@
 }
 
 .focusMeta dt {
-  color: rgba(248, 244, 233, 0.58);
+  color: #c9cec6;
   font-size: 0.55rem;
   text-transform: uppercase;
 }
@@ -754,6 +781,92 @@
   font-weight: 680;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.lifecycleBlock {
+  padding: 0.85rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+}
+
+.lifecycleTopline {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.8rem;
+  color: #c9cec6;
+  font-size: 0.58rem;
+}
+
+.lifecycleTopline strong {
+  overflow: hidden;
+  color: #fff;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lifecycleTrack {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.25rem;
+  margin: 0.9rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lifecycleTrack::before {
+  position: absolute;
+  top: 6px;
+  right: 8%;
+  left: 8%;
+  height: 1px;
+  content: "";
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.lifecycleTrack li {
+  position: relative;
+  display: grid;
+  gap: 0.42rem;
+  justify-items: center;
+  min-width: 0;
+  color: #aeb6ad;
+  font-size: 0.5rem;
+  text-align: center;
+}
+
+.lifecycleTrack i {
+  z-index: 1;
+  width: 13px;
+  height: 13px;
+  border: 2px solid #68736b;
+  border-radius: 50%;
+  background: var(--ink);
+}
+
+.milestoneDone {
+  color: #dceade !important;
+}
+
+.milestoneDone i {
+  border-color: #96c4a8;
+  background: var(--moss);
+}
+
+.milestoneCurrent {
+  color: #fff !important;
+  font-weight: 720;
+}
+
+.milestoneCurrent i {
+  border-color: #f4ad98;
+  outline: 2px solid rgba(244, 173, 152, 0.24);
+  outline-offset: 2px;
+  background: var(--ember);
+}
+
+.milestoneUpcoming {
+  color: #aeb6ad;
 }
 
 .proposalBox {
@@ -791,16 +904,77 @@
   border: 0;
   border-radius: 11px;
   color: #fff;
-  background: #b93d22;
+  background: #96351f;
   font: inherit;
   font-size: 0.72rem;
   font-weight: 750;
   cursor: pointer;
+  transition: transform 150ms ease-out;
+}
+
+.primaryAction:hover {
+  transform: translateY(-1px);
+}
+
+.primaryAction:active {
+  transform: translateY(0);
+}
+
+.decisionBrief {
+  margin-top: 0.7rem;
+  padding: 0.9rem;
+  border-radius: 12px;
+  color: var(--ink);
+  background: #fffaf0;
+}
+
+.decisionBrief > span {
+  color: var(--moss);
+  font-size: 0.56rem;
+  font-weight: 760;
+  text-transform: uppercase;
+}
+
+.decisionBrief h3 {
+  margin: 0.3rem 0 0.75rem;
+  font-size: 0.82rem;
+}
+
+.decisionBrief dl {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5rem;
+  margin: 0;
+}
+
+.decisionBrief dl > div {
+  padding: 0.6rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.decisionBrief dt {
+  color: var(--muted);
+  font-size: 0.52rem;
+  text-transform: uppercase;
+}
+
+.decisionBrief dd {
+  margin: 0.25rem 0 0;
+  font-size: 0.63rem;
+  font-weight: 700;
+}
+
+.decisionBrief p {
+  margin: 0.75rem 0 0;
+  color: var(--muted);
+  font-size: 0.62rem;
+  line-height: 1.5;
 }
 
 .localOnly {
   margin: 0.65rem 0 0;
-  color: rgba(248, 244, 233, 0.62);
+  color: #c9cec6;
   font-size: 0.58rem;
   text-align: center;
 }
@@ -841,7 +1015,7 @@
   display: block;
   height: 100%;
   border-radius: inherit;
-  background: linear-gradient(90deg, var(--moss), #5c977e);
+  background: var(--moss);
 }
 
 .funnelRow strong {
@@ -928,7 +1102,7 @@
   }
 
   .focusMeta {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
   }
 
   .focusContext {
@@ -960,10 +1134,6 @@
 
   .sideRail {
     grid-template-columns: 1fr;
-  }
-
-  .focusMeta {
-    grid-template-columns: repeat(3, 1fr);
   }
 
   .queueHeader {
@@ -1084,6 +1254,10 @@
   }
 
   .leadRow {
+    transition: none;
+  }
+
+  .primaryAction {
     transition: none;
   }
 }

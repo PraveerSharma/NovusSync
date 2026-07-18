@@ -2,7 +2,15 @@
 
 import { useMemo, useState } from "react";
 
-import { funnel, metrics, queueLeads, recentActivity, type QueueFilter } from "./dashboard-data";
+import {
+  funnel,
+  lifecycleMilestoneByStage,
+  lifecycleMilestones,
+  metrics,
+  queueLeads,
+  recentActivity,
+  type QueueFilter,
+} from "./dashboard-data";
 import styles from "./dashboard.module.css";
 
 const filters: Array<{ id: QueueFilter; label: string }> = [
@@ -57,6 +65,7 @@ export function OperationsDashboard() {
   const [activeFilter, setActiveFilter] = useState<QueueFilter>("attention");
   const [query, setQuery] = useState("");
   const [selectedId, setSelectedId] = useState(queueLeads[0]?.id ?? "");
+  const [expandedReviewId, setExpandedReviewId] = useState<string | null>(null);
 
   const visibleLeads = useMemo(() => {
     const normalized = query.trim().toLocaleLowerCase();
@@ -64,7 +73,7 @@ export function OperationsDashboard() {
       const matchesFilter = filterLead(activeFilter, lead);
       const matchesQuery =
         !normalized ||
-        [lead.name, lead.source, lead.campaign, lead.stage, lead.nextAction]
+        [lead.name, lead.source, lead.campaign, lead.stageLabel, lead.nextAction]
           .join(" ")
           .toLocaleLowerCase()
           .includes(normalized);
@@ -74,6 +83,14 @@ export function OperationsDashboard() {
 
   const selectedLead =
     visibleLeads.find((lead) => lead.id === selectedId) ?? visibleLeads[0] ?? queueLeads[0];
+  const selectedMilestone = selectedLead ? lifecycleMilestoneByStage[selectedLead.stage] : 0;
+  const isDecisionBriefOpen = expandedReviewId === selectedLead?.id;
+
+  function clearQueueFilters() {
+    setActiveFilter("attention");
+    setQuery("");
+    setSelectedId(queueLeads[0]?.id ?? "");
+  }
 
   return (
     <>
@@ -132,6 +149,12 @@ export function OperationsDashboard() {
             </label>
           </div>
 
+          <p aria-live="polite" className={styles.queueResult}>
+            <strong>{visibleLeads.length}</strong>{" "}
+            {visibleLeads.length === 1 ? "handoff" : "handoffs"}
+            <span> in this view</span>
+          </p>
+
           <div aria-hidden="true" className={styles.queueHeader}>
             <span>Customer</span>
             <span>Current stage</span>
@@ -158,7 +181,7 @@ export function OperationsDashboard() {
                   </span>
                   <span className={styles.stageCell}>
                     <i aria-hidden="true" />
-                    {lead.stage}
+                    {lead.stageLabel}
                     <small>{lead.campaign}</small>
                   </span>
                   <span className={styles.actionCell}>
@@ -175,6 +198,9 @@ export function OperationsDashboard() {
               <div className={styles.emptyState}>
                 <strong>No matching work.</strong>
                 <span>Try another queue or clear your search.</span>
+                <button onClick={clearQueueFilters} type="button">
+                  Clear queue filters
+                </button>
               </div>
             )}
           </div>
@@ -195,7 +221,7 @@ export function OperationsDashboard() {
             <dl className={styles.focusMeta}>
               <div>
                 <dt>Stage</dt>
-                <dd>{selectedLead?.stage}</dd>
+                <dd>{selectedLead?.stageLabel}</dd>
               </div>
               <div>
                 <dt>Owner</dt>
@@ -205,7 +231,40 @@ export function OperationsDashboard() {
                 <dt>Source</dt>
                 <dd>{selectedLead?.source}</dd>
               </div>
+              <div>
+                <dt>Version</dt>
+                <dd>v{selectedLead?.version}</dd>
+              </div>
             </dl>
+            <div className={styles.lifecycleBlock}>
+              <div className={styles.lifecycleTopline}>
+                <span>Lifecycle evidence</span>
+                <strong>{selectedLead?.stageLabel}</strong>
+              </div>
+              <ol
+                aria-label={`${selectedLead?.name ?? "Selected lead"} lifecycle progress`}
+                className={styles.lifecycleTrack}
+              >
+                {lifecycleMilestones.map((milestone, index) => {
+                  const state =
+                    index < selectedMilestone
+                      ? styles.milestoneDone
+                      : index === selectedMilestone
+                        ? styles.milestoneCurrent
+                        : styles.milestoneUpcoming;
+                  return (
+                    <li
+                      aria-current={index === selectedMilestone ? "step" : undefined}
+                      className={state}
+                      key={milestone}
+                    >
+                      <i aria-hidden="true" />
+                      <span>{milestone}</span>
+                    </li>
+                  );
+                })}
+              </ol>
+            </div>
             <div className={styles.proposalBox}>
               <span>Proposed next action</span>
               <strong>{selectedLead?.nextAction}</strong>
@@ -215,9 +274,39 @@ export function OperationsDashboard() {
                 <small>Matches an approved workspace rule</small>
               )}
             </div>
-            <button className={styles.primaryAction} type="button">
-              Review proposal <ArrowIcon />
+            <button
+              aria-controls="selected-decision-brief"
+              aria-expanded={isDecisionBriefOpen}
+              className={styles.primaryAction}
+              onClick={() =>
+                setExpandedReviewId(isDecisionBriefOpen ? null : (selectedLead?.id ?? null))
+              }
+              type="button"
+            >
+              {isDecisionBriefOpen ? "Close decision brief" : "Review proposal"} <ArrowIcon />
             </button>
+            {isDecisionBriefOpen ? (
+              <section className={styles.decisionBrief} id="selected-decision-brief">
+                <span>Decision brief</span>
+                <h3>
+                  {selectedLead?.approval ? "Owner decision required" : "Approved rule confirmed"}
+                </h3>
+                <dl>
+                  <div>
+                    <dt>Authority</dt>
+                    <dd>{selectedLead?.approval ? "Workspace owner" : "Pre-approved rule"}</dd>
+                  </div>
+                  <div>
+                    <dt>External effect</dt>
+                    <dd>None in Preview</dd>
+                  </div>
+                </dl>
+                <p>
+                  This review changes no customer record and sends no message. A governed command
+                  will be added only after the live-readiness gate passes.
+                </p>
+              </section>
+            ) : null}
             <p className={styles.localOnly}>Preview only. No external action is sent.</p>
           </section>
 
