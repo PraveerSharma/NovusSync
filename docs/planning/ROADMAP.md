@@ -1,7 +1,7 @@
 # Delivery Roadmap
 
 **Status:** Decision baseline accepted; evidence-gated execution; no implementation dates are committed  
-**Execution status:** R0 evidence pending; application implementation is blocked until a signed Gate G0 `GO`  
+**Execution status:** Signed Gate G0 `GO` recorded; synthetic/test-boundary Phase 0 and Phase 1 implementation is in progress. Live operation remains blocked by OD-033 readiness evidence.
 **Source:** [Product brief](../product/PRODUCT_BRIEF.md)  
 **Scope authority:** [MVP scope](../product/MVP_SCOPE.md)  
 **Decision register:** [Open decisions](../decisions/OPEN_DECISIONS.md)  

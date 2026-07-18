@@ -1,8 +1,8 @@
 # Phase 1 Verified Business Brain - Execution Evidence
 
 **Evidence date:** 19 July 2026  
-**Current story:** `BRN-001` synthetic/test-boundary foundation  
-**Next story:** `BRN-002` approved-source proposals  
+**Completed stories:** `BRN-001` guided profile and `BRN-002` approved-source proposals
+**Next story:** `BRN-003` owner fact review and conflict resolution
 **Phase status:** IN PROGRESS - NOT PASSED
 
 ## Implemented scope
@@ -44,9 +44,20 @@ The release candidate passed:
 - Business Profile draft entry, validation, progress, section navigation, browser-only save/restore, protected-route redirects, keyboard skip navigation, responsive overflow, and automated WCAG 2.2 A/AA checks.
 - Manual desktop and mobile screenshot inspection.
 
+## BRN-002 release evidence
+
+`BRN-002A` implements bounded owner-approved website and normalized booking-route fixtures, immutable provenance, deterministic extraction failures, provisional candidates, visible conflicts, and a responsive owner-review drawer. No live crawl, provider-owned booking state, or automatic application is reachable.
+
+`BRN-002B` adds tenant-scoped append-only persistence for approved sources, captures, proposal batches, fact candidates, and owner decision history. PostgreSQL forces row-level security, limits the application role to select/insert, and rejects updates/deletes with database triggers. Owner review decisions remain `not_applied`; `BRN-003` owns any verified fact-version effect.
+
+- Main commit: `d59bc0b` (`feat(brain): persist source proposal reviews`).
+- GitHub verification: run `29662790523`; repository policy, provider-free contracts, isolated PostgreSQL migration/integration, browser acceptance, and static/unit/AI/build jobs passed.
+- Local browser verification: affected workflow stress run 10/10 and complete desktop/mobile matrix 30/30.
+- Preview deployment: `dpl_99gcvLMLdc17Ss8GnpnG7wq1W68z`, target `preview`, status `Ready`.
+- Protected remote verification: immutable deployment and stable Preview alias each passed 8 route checks, 10 accessibility scans, 4 workflows, 10 repeated loads, and 2 true 404 checks; post-gate runtime error query was empty.
+
 ## Remaining Phase 1 work
 
-- `BRN-002`: bounded approved-source fixtures and proposed facts.
 - `BRN-003`: explicit owner verification, correction, rejection, and conflict resolution.
 - `BRN-004`: approved-fact retrieval with citations and explicit unknown results.
 - `BRN-005`: expiry and reverification rules.
