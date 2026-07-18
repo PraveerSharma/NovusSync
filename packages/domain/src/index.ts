@@ -45,6 +45,103 @@ export type CreateCommandEnvelopeInput<TPayload> = Readonly<{
   createdAt?: string;
 }>;
 
+export type LeadId = string;
+
+export const LEAD_LIFECYCLE_STAGES = [
+  "new",
+  "contacted",
+  "qualified",
+  "booking_proposed",
+  "booked",
+  "booking_confirmed",
+  "outcome_verified",
+  "outcome_missed",
+  "conversion_follow_up",
+  "converted",
+  "closed_not_converted",
+] as const;
+
+export type LeadLifecycleStage = (typeof LEAD_LIFECYCLE_STAGES)[number];
+
+export type LeadLifecycleState = Readonly<{
+  leadId: LeadId;
+  tenant: TenantContext;
+  stage: LeadLifecycleStage;
+  version: number;
+  updatedAt: string;
+}>;
+
+export type CreateLeadLifecycleInput = Readonly<{
+  leadId: LeadId;
+  tenant: TenantContext;
+  occurredAt: string;
+}>;
+
+export type TransitionLeadLifecycleInput = Readonly<{
+  to: LeadLifecycleStage;
+  occurredAt: string;
+  reasonCode?: string;
+}>;
+
+export type LeadLifecycleTransition = Readonly<{
+  leadId: LeadId;
+  tenant: TenantContext;
+  from: LeadLifecycleStage;
+  to: LeadLifecycleStage;
+  version: number;
+  occurredAt: string;
+  reasonCode?: string;
+}>;
+
+export type LeadLifecycleTransitionResult = Readonly<{
+  state: LeadLifecycleState;
+  transition: LeadLifecycleTransition;
+}>;
+
+export type LeadLifecycleErrorCode =
+  | "LEAD_LIFECYCLE_INVALID"
+  | "LEAD_TRANSITION_NOT_ALLOWED"
+  | "LEAD_TRANSITION_REASON_REQUIRED"
+  | "LEAD_TRANSITION_TIME_REGRESSION";
+
+export class LeadLifecycleError extends Error {
+  readonly code: LeadLifecycleErrorCode;
+
+  constructor(code: LeadLifecycleErrorCode, message: string) {
+    super(message);
+    this.name = "LeadLifecycleError";
+    this.code = code;
+  }
+}
+
+const TERMINAL_LEAD_STAGES: readonly LeadLifecycleStage[] = ["converted", "closed_not_converted"];
+
+const REASON_REQUIRED_LEAD_STAGES: readonly LeadLifecycleStage[] = [
+  "outcome_missed",
+  "closed_not_converted",
+];
+
+const ALLOWED_LEAD_STAGE_TRANSITIONS: Readonly<
+  Record<LeadLifecycleStage, readonly LeadLifecycleStage[]>
+> = {
+  new: ["contacted", "closed_not_converted"],
+  contacted: ["qualified", "closed_not_converted"],
+  qualified: ["booking_proposed", "closed_not_converted"],
+  booking_proposed: ["booked", "closed_not_converted"],
+  booked: ["booking_confirmed", "booking_proposed", "closed_not_converted"],
+  booking_confirmed: [
+    "outcome_verified",
+    "outcome_missed",
+    "booking_proposed",
+    "closed_not_converted",
+  ],
+  outcome_verified: ["conversion_follow_up", "converted", "closed_not_converted"],
+  outcome_missed: ["booking_proposed", "conversion_follow_up", "closed_not_converted"],
+  conversion_follow_up: ["booking_proposed", "converted", "closed_not_converted"],
+  converted: [],
+  closed_not_converted: [],
+};
+
 export function createDomainError(code: string, message: string) {
   return {
     code,
@@ -76,6 +173,141 @@ export function createCommandEnvelope<TPayload = Record<string, unknown>>(
     origin: Object.freeze({ ...input.origin }),
     payload: input.payload,
     createdAt,
+  });
+}
+
+export function isLeadLifecycleStage(value: unknown): value is LeadLifecycleStage {
+  return typeof value === "string" && LEAD_LIFECYCLE_STAGES.includes(value as LeadLifecycleStage);
+}
+
+export function isTerminalLeadStage(stage: LeadLifecycleStage): boolean {
+  return TERMINAL_LEAD_STAGES.includes(stage);
+}
+
+export function canTransitionLeadLifecycle(
+  from: LeadLifecycleStage,
+  to: LeadLifecycleStage,
+): boolean {
+  return ALLOWED_LEAD_STAGE_TRANSITIONS[from].includes(to);
+}
+
+export function createLeadLifecycle(input: CreateLeadLifecycleInput): LeadLifecycleState {
+  assertLeadIdentity(input.leadId, input.tenant);
+  const occurredAt = parseLeadTimestamp(input.occurredAt);
+
+  return freezeLeadLifecycleState({
+    leadId: input.leadId,
+    tenant: input.tenant,
+    stage: "new",
+    version: 1,
+    updatedAt: occurredAt,
+  });
+}
+
+export function transitionLeadLifecycle(
+  current: LeadLifecycleState,
+  input: TransitionLeadLifecycleInput,
+): LeadLifecycleTransitionResult {
+  assertLeadLifecycleState(current);
+  if (!isLeadLifecycleStage(input.to)) {
+    throw new LeadLifecycleError(
+      "LEAD_LIFECYCLE_INVALID",
+      "Lead lifecycle transition requires a known destination stage",
+    );
+  }
+  if (!canTransitionLeadLifecycle(current.stage, input.to)) {
+    throw new LeadLifecycleError(
+      "LEAD_TRANSITION_NOT_ALLOWED",
+      `Lead lifecycle cannot transition from ${current.stage} to ${input.to}`,
+    );
+  }
+
+  const occurredAt = parseLeadTimestamp(input.occurredAt);
+  if (Date.parse(occurredAt) < Date.parse(current.updatedAt)) {
+    throw new LeadLifecycleError(
+      "LEAD_TRANSITION_TIME_REGRESSION",
+      "Lead lifecycle transition cannot predate the current state",
+    );
+  }
+
+  const reasonCode = normalizeLeadReasonCode(input.reasonCode);
+  if (REASON_REQUIRED_LEAD_STAGES.includes(input.to) && !reasonCode) {
+    throw new LeadLifecycleError(
+      "LEAD_TRANSITION_REASON_REQUIRED",
+      `Lead lifecycle stage ${input.to} requires a reason code`,
+    );
+  }
+
+  const version = current.version + 1;
+  const state = freezeLeadLifecycleState({
+    leadId: current.leadId,
+    tenant: current.tenant,
+    stage: input.to,
+    version,
+    updatedAt: occurredAt,
+  });
+  const transition = Object.freeze({
+    leadId: current.leadId,
+    tenant: Object.freeze({ ...current.tenant }),
+    from: current.stage,
+    to: input.to,
+    version,
+    occurredAt,
+    ...(reasonCode ? { reasonCode } : {}),
+  });
+
+  return Object.freeze({ state, transition });
+}
+
+function assertLeadLifecycleState(state: LeadLifecycleState): void {
+  assertLeadIdentity(state.leadId, state.tenant);
+  if (!isLeadLifecycleStage(state.stage)) {
+    throw new LeadLifecycleError("LEAD_LIFECYCLE_INVALID", "Lead lifecycle has an unknown stage");
+  }
+  if (!Number.isSafeInteger(state.version) || state.version < 1) {
+    throw new LeadLifecycleError(
+      "LEAD_LIFECYCLE_INVALID",
+      "Lead lifecycle requires a positive version",
+    );
+  }
+  parseLeadTimestamp(state.updatedAt);
+}
+
+function assertLeadIdentity(leadId: LeadId, tenant: TenantContext): void {
+  if (!leadId.trim() || !tenant.organizationId.trim() || !tenant.workspaceId.trim()) {
+    throw new LeadLifecycleError(
+      "LEAD_LIFECYCLE_INVALID",
+      "Lead lifecycle requires lead and tenant identity",
+    );
+  }
+}
+
+function parseLeadTimestamp(value: string): string {
+  if (!value.trim() || Number.isNaN(Date.parse(value))) {
+    throw new LeadLifecycleError(
+      "LEAD_LIFECYCLE_INVALID",
+      "Lead lifecycle requires a valid timestamp",
+    );
+  }
+  return value;
+}
+
+function normalizeLeadReasonCode(value: string | undefined): string | undefined {
+  const reasonCode = value?.trim();
+  if (!reasonCode) return undefined;
+  if (!/^[A-Z][A-Z0-9_-]{0,63}$/.test(reasonCode)) {
+    throw new LeadLifecycleError(
+      "LEAD_LIFECYCLE_INVALID",
+      "Lead lifecycle reason code must be a stable uppercase identifier",
+    );
+  }
+  return reasonCode;
+}
+
+function freezeLeadLifecycleState(state: LeadLifecycleState): LeadLifecycleState {
+  return Object.freeze({
+    ...state,
+    tenant: Object.freeze({ ...state.tenant }),
   });
 }
 
