@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import AxeBuilder from "@axe-core/playwright";
 
 test.describe("Business Profile source proposals", () => {
   test("keeps website and booking suggestions provisional", async ({ page }) => {
@@ -13,6 +14,12 @@ test.describe("Business Profile source proposals", () => {
     await expect(dialog.getByText("Synthetic, minimized data")).toBeVisible();
     await expect(dialog.getByText("Business summary")).toBeVisible();
     await expect(dialog.getByText("Provisional").first()).toBeVisible();
+
+    const accessibility = await new AxeBuilder({ page })
+      .include("#source-proposal-drawer")
+      .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"])
+      .analyze();
+    expect(accessibility.violations).toEqual([]);
 
     await dialog.getByRole("tab", { name: /booking route/i }).click();
     await expect(dialog.getByText("Stale source label")).toBeVisible();
