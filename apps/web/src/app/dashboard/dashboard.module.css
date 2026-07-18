@@ -31,6 +31,27 @@
   mask-image: linear-gradient(to bottom, black, transparent 70%);
 }
 
+.skipLink {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 20;
+  padding: 0.7rem 0.9rem;
+  border: 2px solid var(--ink);
+  border-radius: 10px;
+  color: var(--paper);
+  background: var(--ink);
+  font-size: 0.78rem;
+  font-weight: 760;
+  text-decoration: none;
+  transform: translateY(calc(-100% - 1rem));
+  transition: transform 120ms ease-out;
+}
+
+.skipLink:focus {
+  transform: translateY(0);
+}
+
 .topbar,
 .main {
   position: relative;
@@ -197,6 +218,10 @@
   width: min(1500px, 93vw);
   margin: 0 auto;
   padding: clamp(2.6rem, 6vw, 5.6rem) 0 5rem;
+}
+
+.main:focus {
+  outline: none;
 }
 
 .hero {

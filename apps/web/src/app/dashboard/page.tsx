@@ -11,6 +11,9 @@ export const metadata: Metadata = {
 export default function DashboardPage() {
   return (
     <div className={styles.pageShell}>
+      <a className={styles.skipLink} href="#main-content">
+        Skip to main content
+      </a>
       <header className={styles.topbar}>
         <a aria-label="NovusSync home" className={styles.brand} href="/">
           <span aria-hidden="true">
@@ -41,7 +44,7 @@ export default function DashboardPage() {
         </div>
       </header>
 
-      <main className={styles.main}>
+      <main className={styles.main} id="main-content" tabIndex={-1}>
         <section className={styles.hero}>
           <div>
             <p className={styles.eyebrow}>

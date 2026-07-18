@@ -48,3 +48,14 @@ test("has a responsive, accessible dashboard surface", async ({ page }) => {
     .analyze();
   expect(accessibility.violations).toEqual([]);
 });
+
+test("offers keyboard users a direct route to dashboard content", async ({ page }) => {
+  await page.goto("/dashboard");
+
+  await page.keyboard.press("Tab");
+  const skipLink = page.getByRole("link", { name: "Skip to main content" });
+  await expect(skipLink).toBeFocused();
+
+  await page.keyboard.press("Enter");
+  await expect(page.locator("#main-content")).toBeFocused();
+});
