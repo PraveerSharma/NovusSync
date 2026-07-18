@@ -728,3 +728,370 @@ export const businessProfileDraftVersions = pgTable(
     }),
   ],
 );
+
+export const approvedBusinessSources = pgTable(
+  "approved_business_source",
+  {
+    organizationId: uuid("organization_id").notNull(),
+    workspaceId: uuid("workspace_id").notNull(),
+    sourceId: text("source_id").notNull(),
+    kind: text("kind", {
+      enum: ["business_website", "booking_route_metadata"],
+    }).notNull(),
+    configuration: jsonb("configuration").$type<Record<string, unknown>>().notNull(),
+    approvedByActorId: uuid("approved_by_actor_id")
+      .notNull()
+      .references(() => actors.id, { onDelete: "restrict" }),
+    approvedAt: timestamp("approved_at", { withTimezone: true }).notNull(),
+    recordedAt: timestamp("recorded_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    primaryKey({
+      name: "approved_business_source_primary",
+      columns: [table.organizationId, table.workspaceId, table.sourceId],
+    }),
+    foreignKey({
+      name: "approved_business_source_workspace_fk",
+      columns: [table.organizationId, table.workspaceId],
+      foreignColumns: [workspaces.organizationId, workspaces.id],
+    }).onDelete("cascade"),
+    index("approved_business_source_kind_idx").on(
+      table.organizationId,
+      table.workspaceId,
+      table.kind,
+      table.recordedAt,
+    ),
+    check("approved_business_source_id_present", sql`length(${table.sourceId}) > 0`),
+    check(
+      "approved_business_source_kind_allowed",
+      sql`${table.kind} in ('business_website', 'booking_route_metadata')`,
+    ),
+    check(
+      "approved_business_source_configuration_object",
+      sql`jsonb_typeof(${table.configuration}) = 'object'`,
+    ),
+    pgPolicy("approved_business_source_tenant_select", {
+      to: novussyncAppRole,
+      for: "select",
+      using: workspaceScope(table.organizationId, table.workspaceId),
+    }),
+    pgPolicy("approved_business_source_tenant_insert", {
+      to: novussyncAppRole,
+      for: "insert",
+      withCheck: workspaceScope(table.organizationId, table.workspaceId),
+    }),
+  ],
+);
+
+export const sourceCaptures = pgTable(
+  "source_capture",
+  {
+    organizationId: uuid("organization_id").notNull(),
+    workspaceId: uuid("workspace_id").notNull(),
+    sourceId: text("source_id").notNull(),
+    captureId: text("capture_id").notNull(),
+    sourceKind: text("source_kind", {
+      enum: ["business_website", "booking_route_metadata"],
+    }).notNull(),
+    sourceLocation: text("source_location").notNull(),
+    sourceReference: text("source_reference").notNull(),
+    capturedAt: timestamp("captured_at", { withTimezone: true }).notNull(),
+    extractorId: text("extractor_id").notNull(),
+    extractorVersion: text("extractor_version").notNull(),
+    contentDigest: text("content_digest").notNull(),
+    contentBytes: integer("content_bytes").notNull(),
+    recordedAt: timestamp("recorded_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    primaryKey({
+      name: "source_capture_primary",
+      columns: [table.organizationId, table.workspaceId, table.captureId],
+    }),
+    unique("source_capture_source_identity_unique").on(
+      table.organizationId,
+      table.workspaceId,
+      table.sourceId,
+      table.captureId,
+    ),
+    foreignKey({
+      name: "source_capture_source_fk",
+      columns: [table.organizationId, table.workspaceId, table.sourceId],
+      foreignColumns: [
+        approvedBusinessSources.organizationId,
+        approvedBusinessSources.workspaceId,
+        approvedBusinessSources.sourceId,
+      ],
+    }).onDelete("restrict"),
+    index("source_capture_time_idx").on(
+      table.organizationId,
+      table.workspaceId,
+      table.sourceId,
+      table.capturedAt,
+    ),
+    check("source_capture_id_present", sql`length(${table.captureId}) > 0`),
+    check("source_capture_location_present", sql`length(${table.sourceLocation}) > 0`),
+    check("source_capture_reference_present", sql`length(${table.sourceReference}) > 0`),
+    check("source_capture_extractor_id_present", sql`length(${table.extractorId}) > 0`),
+    check("source_capture_extractor_version_present", sql`length(${table.extractorVersion}) > 0`),
+    check("source_capture_digest_present", sql`length(${table.contentDigest}) > 0`),
+    check("source_capture_bytes_positive", sql`${table.contentBytes} > 0`),
+    pgPolicy("source_capture_tenant_select", {
+      to: novussyncAppRole,
+      for: "select",
+      using: workspaceScope(table.organizationId, table.workspaceId),
+    }),
+    pgPolicy("source_capture_tenant_insert", {
+      to: novussyncAppRole,
+      for: "insert",
+      withCheck: workspaceScope(table.organizationId, table.workspaceId),
+    }),
+  ],
+);
+
+export const sourceProposalBatches = pgTable(
+  "source_proposal_batch",
+  {
+    organizationId: uuid("organization_id").notNull(),
+    workspaceId: uuid("workspace_id").notNull(),
+    batchId: text("batch_id").notNull(),
+    profileId: text("profile_id").notNull(),
+    sourceId: text("source_id").notNull(),
+    captureId: text("capture_id").notNull(),
+    status: text("status", { enum: ["requires_owner_review"] }).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull(),
+    recordedAt: timestamp("recorded_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    primaryKey({
+      name: "source_proposal_batch_primary",
+      columns: [table.organizationId, table.workspaceId, table.batchId],
+    }),
+    foreignKey({
+      name: "source_proposal_batch_profile_fk",
+      columns: [table.organizationId, table.workspaceId, table.profileId],
+      foreignColumns: [
+        businessProfileDrafts.organizationId,
+        businessProfileDrafts.workspaceId,
+        businessProfileDrafts.profileId,
+      ],
+    }).onDelete("restrict"),
+    foreignKey({
+      name: "source_proposal_batch_source_fk",
+      columns: [table.organizationId, table.workspaceId, table.sourceId],
+      foreignColumns: [
+        approvedBusinessSources.organizationId,
+        approvedBusinessSources.workspaceId,
+        approvedBusinessSources.sourceId,
+      ],
+    }).onDelete("restrict"),
+    foreignKey({
+      name: "source_proposal_batch_capture_fk",
+      columns: [table.organizationId, table.workspaceId, table.sourceId, table.captureId],
+      foreignColumns: [
+        sourceCaptures.organizationId,
+        sourceCaptures.workspaceId,
+        sourceCaptures.sourceId,
+        sourceCaptures.captureId,
+      ],
+    }).onDelete("restrict"),
+    index("source_proposal_batch_review_idx").on(
+      table.organizationId,
+      table.workspaceId,
+      table.profileId,
+      table.status,
+      table.createdAt,
+    ),
+    check("source_proposal_batch_id_present", sql`length(${table.batchId}) > 0`),
+    check("source_proposal_batch_status_allowed", sql`${table.status} = 'requires_owner_review'`),
+    pgPolicy("source_proposal_batch_tenant_select", {
+      to: novussyncAppRole,
+      for: "select",
+      using: workspaceScope(table.organizationId, table.workspaceId),
+    }),
+    pgPolicy("source_proposal_batch_tenant_insert", {
+      to: novussyncAppRole,
+      for: "insert",
+      withCheck: workspaceScope(table.organizationId, table.workspaceId),
+    }),
+  ],
+);
+
+export const factCandidates = pgTable(
+  "fact_candidate",
+  {
+    organizationId: uuid("organization_id").notNull(),
+    workspaceId: uuid("workspace_id").notNull(),
+    candidateId: text("candidate_id").notNull(),
+    batchId: text("batch_id").notNull(),
+    profileId: text("profile_id").notNull(),
+    sourceId: text("source_id").notNull(),
+    captureId: text("capture_id").notNull(),
+    fieldKey: text("field_key").notNull(),
+    factTemplateVersion: text("fact_template_version").notNull(),
+    playbookVersion: text("playbook_version").notNull(),
+    value: jsonb("value").$type<unknown>().notNull(),
+    allowedUseCases: text("allowed_use_cases").array().notNull(),
+    confidenceBasisPoints: integer("confidence_basis_points").notNull(),
+    conflictKind: text("conflict_kind", {
+      enum: [
+        "none",
+        "existing_value",
+        "source_disagreement",
+        "stale_source_label",
+        "provider_conflict",
+      ],
+    }).notNull(),
+    conflictDetail: text("conflict_detail"),
+    verificationStatus: text("verification_status", { enum: ["unverified"] }).notNull(),
+    authority: text("authority", { enum: ["provisional"] }).notNull(),
+    candidateCreatedAt: timestamp("candidate_created_at", { withTimezone: true }).notNull(),
+    recordedAt: timestamp("recorded_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    primaryKey({
+      name: "fact_candidate_primary",
+      columns: [table.organizationId, table.workspaceId, table.candidateId],
+    }),
+    foreignKey({
+      name: "fact_candidate_batch_fk",
+      columns: [table.organizationId, table.workspaceId, table.batchId],
+      foreignColumns: [
+        sourceProposalBatches.organizationId,
+        sourceProposalBatches.workspaceId,
+        sourceProposalBatches.batchId,
+      ],
+    }).onDelete("restrict"),
+    foreignKey({
+      name: "fact_candidate_capture_fk",
+      columns: [table.organizationId, table.workspaceId, table.sourceId, table.captureId],
+      foreignColumns: [
+        sourceCaptures.organizationId,
+        sourceCaptures.workspaceId,
+        sourceCaptures.sourceId,
+        sourceCaptures.captureId,
+      ],
+    }).onDelete("restrict"),
+    uniqueIndex("fact_candidate_batch_field_unique").on(
+      table.organizationId,
+      table.workspaceId,
+      table.batchId,
+      table.fieldKey,
+    ),
+    index("fact_candidate_profile_review_idx").on(
+      table.organizationId,
+      table.workspaceId,
+      table.profileId,
+      table.recordedAt,
+    ),
+    check("fact_candidate_id_present", sql`length(${table.candidateId}) > 0`),
+    check(
+      "fact_candidate_field_key_format",
+      sql`${table.fieldKey} ~ '^[a-z][a-zA-Z0-9]*(\\.[a-z][a-zA-Z0-9]*)+$'`,
+    ),
+    check(
+      "fact_candidate_allowed_use_cases_present",
+      sql`cardinality(${table.allowedUseCases}) > 0`,
+    ),
+    check(
+      "fact_candidate_confidence_range",
+      sql`${table.confidenceBasisPoints} between 0 and 10000`,
+    ),
+    check(
+      "fact_candidate_conflict_allowed",
+      sql`${table.conflictKind} in ('none', 'existing_value', 'source_disagreement', 'stale_source_label', 'provider_conflict')`,
+    ),
+    check(
+      "fact_candidate_conflict_shape",
+      sql`(${table.conflictKind} = 'none' and ${table.conflictDetail} is null)
+        or (${table.conflictKind} <> 'none' and ${table.conflictDetail} is not null)`,
+    ),
+    check(
+      "fact_candidate_authority_fixed",
+      sql`${table.verificationStatus} = 'unverified' and ${table.authority} = 'provisional'`,
+    ),
+    pgPolicy("fact_candidate_tenant_select", {
+      to: novussyncAppRole,
+      for: "select",
+      using: workspaceScope(table.organizationId, table.workspaceId),
+    }),
+    pgPolicy("fact_candidate_tenant_insert", {
+      to: novussyncAppRole,
+      for: "insert",
+      withCheck: workspaceScope(table.organizationId, table.workspaceId),
+    }),
+  ],
+);
+
+export const factCandidateReviewDecisions = pgTable(
+  "fact_candidate_review_decision",
+  {
+    organizationId: uuid("organization_id").notNull(),
+    workspaceId: uuid("workspace_id").notNull(),
+    decisionId: text("decision_id").notNull(),
+    candidateId: text("candidate_id").notNull(),
+    profileId: text("profile_id").notNull(),
+    decisionVersion: integer("decision_version").notNull(),
+    outcome: text("outcome", {
+      enum: ["approved_for_profile_draft", "rejected", "needs_changes"],
+    }).notNull(),
+    reasonCode: text("reason_code").notNull(),
+    decidedByActorId: uuid("decided_by_actor_id")
+      .notNull()
+      .references(() => actors.id, { onDelete: "restrict" }),
+    candidateAuthority: text("candidate_authority", { enum: ["provisional"] }).notNull(),
+    applicationStatus: text("application_status", { enum: ["not_applied"] }).notNull(),
+    decidedAt: timestamp("decided_at", { withTimezone: true }).notNull(),
+    recordedAt: timestamp("recorded_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    primaryKey({
+      name: "fact_candidate_review_decision_primary",
+      columns: [table.organizationId, table.workspaceId, table.decisionId],
+    }),
+    foreignKey({
+      name: "fact_candidate_review_decision_candidate_fk",
+      columns: [table.organizationId, table.workspaceId, table.candidateId],
+      foreignColumns: [
+        factCandidates.organizationId,
+        factCandidates.workspaceId,
+        factCandidates.candidateId,
+      ],
+    }).onDelete("restrict"),
+    uniqueIndex("fact_candidate_review_decision_version_unique").on(
+      table.organizationId,
+      table.workspaceId,
+      table.candidateId,
+      table.decisionVersion,
+    ),
+    index("fact_candidate_review_decision_time_idx").on(
+      table.organizationId,
+      table.workspaceId,
+      table.candidateId,
+      table.decidedAt,
+    ),
+    check("fact_candidate_review_decision_id_present", sql`length(${table.decisionId}) > 0`),
+    check("fact_candidate_review_decision_version_positive", sql`${table.decisionVersion} > 0`),
+    check(
+      "fact_candidate_review_decision_outcome_allowed",
+      sql`${table.outcome} in ('approved_for_profile_draft', 'rejected', 'needs_changes')`,
+    ),
+    check(
+      "fact_candidate_review_decision_reason_format",
+      sql`${table.reasonCode} ~ '^[A-Z][A-Z0-9_-]{0,63}$'`,
+    ),
+    check(
+      "fact_candidate_review_decision_effect_fixed",
+      sql`${table.candidateAuthority} = 'provisional' and ${table.applicationStatus} = 'not_applied'`,
+    ),
+    pgPolicy("fact_candidate_review_decision_tenant_select", {
+      to: novussyncAppRole,
+      for: "select",
+      using: workspaceScope(table.organizationId, table.workspaceId),
+    }),
+    pgPolicy("fact_candidate_review_decision_tenant_insert", {
+      to: novussyncAppRole,
+      for: "insert",
+      withCheck: workspaceScope(table.organizationId, table.workspaceId),
+    }),
+  ],
+);

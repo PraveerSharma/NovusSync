@@ -6,9 +6,11 @@ import {
   approveBookingRouteMetadataSource,
   approveBusinessWebsiteSource,
   createFactCandidate,
+  createFactCandidateReviewDecision,
   createSourceCapture,
   createSourceProposalBatch,
   type FactCandidate,
+  type FactCandidateReviewDecision,
   type SourceProposalBatch,
 } from "@novussync/domain";
 
@@ -132,6 +134,28 @@ function createPreviewBatches(): readonly SourceProposalBatch[] {
 
 const PREVIEW_BATCHES = createPreviewBatches();
 
+function createPreviewDecisionHistory(): readonly FactCandidateReviewDecision[] {
+  const websiteBatch = PREVIEW_BATCHES[0];
+  const candidate = websiteBatch?.candidates.find(
+    (item) => item.fieldKey === "business.serviceArea",
+  );
+  if (!candidate) return Object.freeze([]);
+  return Object.freeze([
+    createFactCandidateReviewDecision({
+      decisionId: "preview-service-area-decision",
+      candidate,
+      decisionVersion: 1,
+      outcome: "needs_changes",
+      reasonCode: "SOURCE_SCOPE_NEEDS_REVIEW",
+      decidedByActorId: "synthetic-owner",
+      decidedByRole: "owner",
+      decidedAt: "2026-07-18T08:12:00.000Z",
+    }),
+  ]);
+}
+
+const PREVIEW_DECISION_HISTORY = createPreviewDecisionHistory();
+
 const FIELD_LABELS: Readonly<Record<string, string>> = {
   "business.summary": "Business summary",
   "business.serviceArea": "Service area",
@@ -144,6 +168,12 @@ const CONFLICT_LABELS = {
   source_disagreement: "Sources disagree",
   stale_source_label: "Stale source label",
   provider_conflict: "Provider-owned fact",
+} as const;
+
+const DECISION_LABELS = {
+  approved_for_profile_draft: "Approved for profile draft",
+  rejected: "Rejected",
+  needs_changes: "Needs changes",
 } as const;
 
 function sourceName(batch: SourceProposalBatch): string {
@@ -360,6 +390,33 @@ export function SourceProposalPanel() {
                 );
               })}
             </div>
+
+            <section className={styles.history} aria-labelledby="source-decision-history-title">
+              <div className={styles.historyHeading}>
+                <div>
+                  <span className={styles.eyebrow}>Immutable review trail</span>
+                  <h3 id="source-decision-history-title">Decision history</h3>
+                </div>
+                <span>{PREVIEW_DECISION_HISTORY.length} recorded</span>
+              </div>
+              {PREVIEW_DECISION_HISTORY.map((decision) => (
+                <article key={decision.decisionId} className={styles.historyItem}>
+                  <div>
+                    <strong>{DECISION_LABELS[decision.outcome]}</strong>
+                    <span>Owner / version {decision.decisionVersion}</span>
+                  </div>
+                  <span className={styles.notApplied}>Not applied</span>
+                  <p>
+                    {decision.reasonCode.replaceAll("_", " ").toLowerCase()} / 18 Jul 2026, 1:42 PM
+                    IST
+                  </p>
+                </article>
+              ))}
+              <p className={styles.historyNote}>
+                Synthetic preview only. A decision record never changes the Business Profile in the
+                same operation.
+              </p>
+            </section>
 
             <footer className={styles.footer}>
               <span>{batch.status.replaceAll("_", " ")}</span>

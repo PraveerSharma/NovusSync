@@ -130,6 +130,29 @@ export interface FactCandidate {
   readonly createdAt: string;
 }
 
+export const FACT_CANDIDATE_REVIEW_OUTCOMES = [
+  "approved_for_profile_draft",
+  "rejected",
+  "needs_changes",
+] as const;
+
+export type FactCandidateReviewOutcome = (typeof FACT_CANDIDATE_REVIEW_OUTCOMES)[number];
+
+export interface FactCandidateReviewDecision {
+  readonly decisionId: string;
+  readonly candidateId: string;
+  readonly profileId: string;
+  readonly tenantId: string;
+  readonly decisionVersion: number;
+  readonly outcome: FactCandidateReviewOutcome;
+  readonly reasonCode: string;
+  readonly decidedByActorId: string;
+  readonly decidedByRole: "owner";
+  readonly candidateAuthority: "provisional";
+  readonly applicationStatus: "not_applied";
+  readonly decidedAt: string;
+}
+
 export interface SourceProposalBatch {
   readonly batchId: string;
   readonly profileId: string;
@@ -488,6 +511,58 @@ export function createSourceProposalBatch(input: {
     candidates: Object.freeze([...input.candidates]),
     status: "requires_owner_review",
     createdAt: timestamp(input.createdAt, "INVALID_CANDIDATE"),
+  });
+}
+
+export function createFactCandidateReviewDecision(input: {
+  readonly decisionId: string;
+  readonly candidate: FactCandidate;
+  readonly decisionVersion: number;
+  readonly outcome: FactCandidateReviewOutcome;
+  readonly reasonCode: string;
+  readonly decidedByActorId: string;
+  readonly decidedByRole: "owner";
+  readonly decidedAt: string;
+}): FactCandidateReviewDecision {
+  if (!Number.isSafeInteger(input.decisionVersion) || input.decisionVersion < 1) {
+    throw new SourceProposalError(
+      "INVALID_CANDIDATE",
+      "Decision versions must be positive integers.",
+    );
+  }
+  if (!FACT_CANDIDATE_REVIEW_OUTCOMES.includes(input.outcome)) {
+    throw new SourceProposalError(
+      "INVALID_CANDIDATE",
+      "The owner review outcome is not supported.",
+    );
+  }
+  if (input.decidedByRole !== "owner") {
+    throw new SourceProposalError(
+      "INVALID_CANDIDATE",
+      "Only an owner can record a source proposal decision.",
+    );
+  }
+  const reasonCode = requiredText(input.reasonCode, "Decision reason code");
+  if (!/^[A-Z][A-Z0-9_-]{0,63}$/.test(reasonCode)) {
+    throw new SourceProposalError(
+      "INVALID_CANDIDATE",
+      "Decision reason codes must use bounded uppercase identifiers.",
+    );
+  }
+
+  return Object.freeze({
+    decisionId: requiredText(input.decisionId, "Decision ID"),
+    candidateId: input.candidate.candidateId,
+    profileId: input.candidate.profileId,
+    tenantId: input.candidate.tenantId,
+    decisionVersion: input.decisionVersion,
+    outcome: input.outcome,
+    reasonCode,
+    decidedByActorId: requiredText(input.decidedByActorId, "Decision actor ID"),
+    decidedByRole: "owner",
+    candidateAuthority: "provisional",
+    applicationStatus: "not_applied",
+    decidedAt: timestamp(input.decidedAt, "INVALID_CANDIDATE"),
   });
 }
 

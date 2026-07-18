@@ -25,3 +25,12 @@ export type {
   BusinessProfileDraftRepository,
   BusinessProfilePersistenceErrorCode,
 } from "./business-profile-repository.js";
+
+export {
+  SourceProposalPersistenceError,
+  createSourceProposalRepository,
+} from "./source-proposal-repository.js";
+export type {
+  SourceProposalPersistenceErrorCode,
+  SourceProposalRepository,
+} from "./source-proposal-repository.js";

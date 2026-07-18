@@ -28,5 +28,8 @@ test.describe("Business Profile source proposals", () => {
     await dialog.getByRole("button", { name: "Queue for owner review" }).click();
     await expect(dialog.getByRole("button", { name: "Queued for owner review" })).toBeDisabled();
     await expect(dialog.getByText("Queueing does not change the Business Profile")).toBeVisible();
+    await expect(dialog.getByRole("heading", { name: "Decision history" })).toBeVisible();
+    await expect(dialog.getByText("Needs changes")).toBeVisible();
+    await expect(dialog.getByText("Not applied")).toBeVisible();
   });
 });

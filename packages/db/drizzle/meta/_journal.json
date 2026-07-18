@@ -64,6 +64,13 @@
       "when": 1784398255632,
       "tag": "0008_business_profile_drafts",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1784412033260,
+      "tag": "0009_source_proposal_persistence",
+      "breakpoints": true
     }
   ]
 }
