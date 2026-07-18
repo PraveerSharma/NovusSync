@@ -33,6 +33,23 @@ export type {
   FoundationExternalEffect,
 } from "./foundation-effect-policy.ts";
 
+export {
+  createLeadLifecycleService,
+  LeadLifecyclePersistenceError,
+} from "./lead-lifecycle-service.ts";
+export type {
+  CreateLeadLifecycleCommand,
+  CreateLeadLifecycleRecord,
+  LeadLifecycleActor,
+  LeadLifecycleCommandService,
+  LeadLifecyclePersistenceErrorCode,
+  LeadLifecycleRecord,
+  LeadLifecycleRepositoryPort,
+  LeadLifecycleTransitionRecord,
+  TransitionLeadLifecycleCommand,
+  TransitionLeadLifecycleRecord,
+} from "./lead-lifecycle-service.ts";
+
 export type ActorContext = {
   tenant: TenantContext;
   actor: CommandActor;

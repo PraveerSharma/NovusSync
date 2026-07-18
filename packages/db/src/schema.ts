@@ -432,7 +432,7 @@ export const leadLifecycleTransitions = pgTable(
     ),
     check(
       "lead_lifecycle_transition_reason_code_format",
-      sql`${table.reasonCode} is null or ${table.reasonCode} ~ '^[A-Z][A-Z0-9_]{0,63}$'`,
+      sql`${table.reasonCode} is null or ${table.reasonCode} ~ '^[A-Z][A-Z0-9_-]{0,63}$'`,
     ),
     pgPolicy("lead_lifecycle_transition_tenant_select", {
       to: novussyncAppRole,

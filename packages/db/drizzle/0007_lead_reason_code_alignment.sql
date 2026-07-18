@@ -1,0 +1,2 @@
+ALTER TABLE "lead_lifecycle_transition" DROP CONSTRAINT "lead_lifecycle_transition_reason_code_format";--> statement-breakpoint
+ALTER TABLE "lead_lifecycle_transition" ADD CONSTRAINT "lead_lifecycle_transition_reason_code_format" CHECK ("lead_lifecycle_transition"."reason_code" is null or "lead_lifecycle_transition"."reason_code" ~ '^[A-Z][A-Z0-9_-]{0,63}$');

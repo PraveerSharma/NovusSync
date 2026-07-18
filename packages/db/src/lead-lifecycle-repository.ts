@@ -1,6 +1,16 @@
 import { and, asc, eq } from "drizzle-orm";
 
 import {
+  LeadLifecyclePersistenceError,
+  type CreateLeadLifecycleRecord,
+  type LeadLifecycleActor,
+  type LeadLifecycleRecord,
+  type LeadLifecycleRepositoryPort,
+  type LeadLifecycleTransitionRecord,
+  type TransitionLeadLifecycleRecord,
+} from "@novussync/application";
+
+import {
   canTransitionLeadLifecycle,
   isLeadLifecycleStage,
   type LeadLifecycleStage,
@@ -10,87 +20,9 @@ import type { Database } from "./client.js";
 import { auditEvents, leadLifecycles, leadLifecycleTransitions } from "./schema.js";
 import { withTenantTransaction, type TenantContext } from "./tenant-transaction.js";
 
-export interface LeadLifecycleActor {
-  readonly type: "human" | "system";
-  readonly id?: string;
-}
+export type LeadLifecycleRepository = LeadLifecycleRepositoryPort;
 
-export interface CreateLeadLifecycleRecord {
-  readonly leadId: string;
-  readonly actor: LeadLifecycleActor;
-  readonly correlationId: string;
-  readonly idempotencyKey?: string;
-  readonly occurredAt: string;
-}
-
-export interface TransitionLeadLifecycleRecord {
-  readonly leadId: string;
-  readonly expectedVersion: number;
-  readonly nextStage: LeadLifecycleStage;
-  readonly reasonCode?: string;
-  readonly actor: LeadLifecycleActor;
-  readonly correlationId: string;
-  readonly idempotencyKey?: string;
-  readonly occurredAt: string;
-}
-
-export interface LeadLifecycleRecord {
-  readonly organizationId: string;
-  readonly workspaceId: string;
-  readonly leadId: string;
-  readonly stage: LeadLifecycleStage;
-  readonly version: number;
-  readonly openedAt: string;
-  readonly updatedAt: string;
-}
-
-export interface LeadLifecycleTransitionRecord {
-  readonly id: string;
-  readonly organizationId: string;
-  readonly workspaceId: string;
-  readonly leadId: string;
-  readonly version: number;
-  readonly previousStage: LeadLifecycleStage | null;
-  readonly nextStage: LeadLifecycleStage;
-  readonly reasonCode: string | null;
-  readonly actor: LeadLifecycleActor;
-  readonly correlationId: string;
-  readonly occurredAt: string;
-  readonly recordedAt: string;
-}
-
-export type LeadLifecyclePersistenceErrorCode =
-  | "already_exists"
-  | "invalid_input"
-  | "invalid_transition"
-  | "not_found"
-  | "time_regression"
-  | "version_conflict";
-
-export class LeadLifecyclePersistenceError extends Error {
-  readonly code: LeadLifecyclePersistenceErrorCode;
-
-  constructor(code: LeadLifecyclePersistenceErrorCode, message: string) {
-    super(message);
-    this.name = "LeadLifecyclePersistenceError";
-    this.code = code;
-  }
-}
-
-export interface LeadLifecycleRepository {
-  create(context: TenantContext, input: CreateLeadLifecycleRecord): Promise<LeadLifecycleRecord>;
-  findById(context: TenantContext, leadId: string): Promise<LeadLifecycleRecord | null>;
-  listTransitions(
-    context: TenantContext,
-    leadId: string,
-  ): Promise<readonly LeadLifecycleTransitionRecord[]>;
-  transition(
-    context: TenantContext,
-    input: TransitionLeadLifecycleRecord,
-  ): Promise<LeadLifecycleRecord>;
-}
-
-export function createLeadLifecycleRepository(database: Database): LeadLifecycleRepository {
+export function createLeadLifecycleRepository(database: Database): LeadLifecycleRepositoryPort {
   return Object.freeze({
     async create(context: TenantContext, input: CreateLeadLifecycleRecord) {
       const occurredAt = validateCreateInput(input);
@@ -415,7 +347,7 @@ function postgresErrorCode(error: unknown): string | undefined {
 }
 
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-const REASON_CODE_PATTERN = /^[A-Z][A-Z0-9_]{0,63}$/;
+const REASON_CODE_PATTERN = /^[A-Z][A-Z0-9_-]{0,63}$/;
 const REASON_REQUIRED_STAGES = new Set<LeadLifecycleStage>([
   "outcome_missed",
   "closed_not_converted",
