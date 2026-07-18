@@ -10,6 +10,13 @@ test("redirects an anonymous dashboard request to invite-only sign in", async ({
   await expect(page.getByRole("button", { name: "Send secure link" })).toBeEnabled();
 });
 
+test("protects the business profile route for anonymous visitors", async ({ page }) => {
+  await page.goto("/business-profile");
+
+  await expect(page).toHaveURL(/\/sign-in\?next=%2Fbusiness-profile$/);
+  await expect(page.getByRole("heading", { level: 2, name: "Open your workspace" })).toBeVisible();
+});
+
 test("fails closed on callback errors and never follows an external next destination", async ({
   page,
 }) => {

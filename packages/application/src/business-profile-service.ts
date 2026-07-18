@@ -25,10 +25,22 @@ export interface BusinessProfileAuthorizationPort {
 }
 
 export interface BusinessProfileDraftRepositoryPort {
-  findById(tenant: BusinessProfileTenant, profileId: string): Promise<BusinessProfileDraft | null>;
-  create(draft: BusinessProfileDraft, idempotencyKey: string): Promise<BusinessProfileDraft>;
-  revise(
+  findById(
+    context: AuthenticatedActorContext,
+    tenant: BusinessProfileTenant,
+    profileId: string,
+    playbook: BusinessProfilePlaybook,
+  ): Promise<BusinessProfileDraft | null>;
+  create(
+    context: AuthenticatedActorContext,
     draft: BusinessProfileDraft,
+    playbook: BusinessProfilePlaybook,
+    idempotencyKey: string,
+  ): Promise<BusinessProfileDraft>;
+  revise(
+    context: AuthenticatedActorContext,
+    draft: BusinessProfileDraft,
+    playbook: BusinessProfilePlaybook,
     expectedVersion: number,
     idempotencyKey: string,
   ): Promise<BusinessProfileDraft>;
@@ -94,7 +106,12 @@ export function createBusinessProfileDraftService(dependencies: {
         values: command.values,
         now,
       });
-      return dependencies.repository.create(draft, command.idempotencyKey);
+      return dependencies.repository.create(
+        command.context,
+        draft,
+        command.playbook,
+        command.idempotencyKey,
+      );
     },
 
     async revise(command: ReviseBusinessProfileDraftCommand): Promise<BusinessProfileDraft> {
@@ -107,7 +124,12 @@ export function createBusinessProfileDraftService(dependencies: {
         now,
       });
 
-      const current = await dependencies.repository.findById(command.tenant, command.profileId);
+      const current = await dependencies.repository.findById(
+        command.context,
+        command.tenant,
+        command.profileId,
+        command.playbook,
+      );
       if (!current) {
         throw new BusinessProfileApplicationError(
           "PROFILE_NOT_FOUND",
@@ -122,7 +144,9 @@ export function createBusinessProfileDraftService(dependencies: {
         now,
       });
       return dependencies.repository.revise(
+        command.context,
         revised,
+        command.playbook,
         command.expectedVersion,
         command.idempotencyKey,
       );

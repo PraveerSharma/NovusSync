@@ -55,6 +55,9 @@ export default function DashboardPage() {
               One accountable queue from campaign response to verified outcome. Your team keeps
               control; NovusSync keeps the next action visible.
             </p>
+            <a className={styles.profileCta} href="/business-profile">
+              Build business profile <span aria-hidden="true">-&gt;</span>
+            </a>
           </div>
           <div className={styles.heroNote}>
             <span aria-hidden="true">01</span>

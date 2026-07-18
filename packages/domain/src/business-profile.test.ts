@@ -6,6 +6,7 @@ import {
   BUSINESS_PROFILE_SECTIONS,
   createBusinessProfileDraft,
   getBusinessProfileCompletion,
+  restoreBusinessProfileDraft,
   reviseBusinessProfileDraft,
   validateBusinessProfileDraft,
   type BusinessProfilePlaybook,
@@ -154,5 +155,29 @@ test("rejects stale revisions and timestamp regressions", () => {
       }),
     (error: unknown) =>
       error instanceof BusinessProfileError && error.code === "TIMESTAMP_REGRESSION",
+  );
+});
+
+test("restores a persisted draft without weakening playbook validation", () => {
+  const restored = restoreBusinessProfileDraft({
+    profileId: "profile-test",
+    tenant,
+    playbook,
+    values: { business_field: "Stored owner value" },
+    version: 7,
+    createdAt: "2026-07-18T17:30:00.000Z",
+    updatedAt: "2026-07-18T17:37:00.000Z",
+  });
+
+  assert.equal(restored.version, 7);
+  assert.equal(restored.values.business_field, "Stored owner value");
+  assert.throws(
+    () =>
+      restoreBusinessProfileDraft({
+        ...restored,
+        playbook,
+        values: { unknown_field: "not allowed" },
+      }),
+    (error: unknown) => error instanceof BusinessProfileError && error.code === "UNKNOWN_FIELD",
   );
 });

@@ -105,6 +105,16 @@ type ReviseBusinessProfileDraftInput = Readonly<{
   now: string;
 }>;
 
+type RestoreBusinessProfileDraftInput = Readonly<{
+  profileId: string;
+  tenant: BusinessProfileTenant;
+  playbook: BusinessProfilePlaybook;
+  values: Readonly<Record<string, BusinessProfileValue>>;
+  version: number;
+  createdAt: string;
+  updatedAt: string;
+}>;
+
 const IDENTIFIER_PATTERN = /^[a-zA-Z0-9][a-zA-Z0-9._:-]{0,127}$/;
 const FIELD_KEY_PATTERN = /^[a-z][a-z0-9_]{2,63}$/;
 
@@ -217,6 +227,36 @@ export function reviseBusinessProfileDraft(
     values: nextValues,
     version: current.version + 1,
     updatedAt: input.now,
+  });
+}
+
+export function restoreBusinessProfileDraft(
+  input: RestoreBusinessProfileDraftInput,
+): BusinessProfileDraft {
+  validateBusinessProfilePlaybook(input.playbook);
+  assertIdentifier(input.profileId, "profileId");
+  assertTenant(input.tenant);
+  assertTimestamp(input.createdAt);
+  assertTimestamp(input.updatedAt);
+
+  if (!Number.isInteger(input.version) || input.version < 1) {
+    throw new BusinessProfileError("INVALID_DRAFT", "The stored profile version is invalid.");
+  }
+  if (Date.parse(input.updatedAt) < Date.parse(input.createdAt)) {
+    throw new BusinessProfileError(
+      "TIMESTAMP_REGRESSION",
+      "A stored profile cannot be updated before it was created.",
+    );
+  }
+
+  return freezeDraft({
+    profileId: input.profileId,
+    tenant: input.tenant,
+    playbook: { id: input.playbook.id, version: input.playbook.version },
+    values: cloneValues(input.values, input.playbook),
+    version: input.version,
+    createdAt: input.createdAt,
+    updatedAt: input.updatedAt,
   });
 }
 

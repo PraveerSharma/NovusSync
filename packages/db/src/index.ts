@@ -16,3 +16,12 @@ export type {
 export { createLeadLifecycleRepository } from "./lead-lifecycle-repository.js";
 export type { LeadLifecycleRepository } from "./lead-lifecycle-repository.js";
 export { createWorkspaceAccessRepository } from "./workspace-access-repository.js";
+
+export {
+  BusinessProfilePersistenceError,
+  createBusinessProfileDraftRepository,
+} from "./business-profile-repository.js";
+export type {
+  BusinessProfileDraftRepository,
+  BusinessProfilePersistenceErrorCode,
+} from "./business-profile-repository.js";

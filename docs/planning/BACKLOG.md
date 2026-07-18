@@ -128,6 +128,8 @@ Some cross-cutting stories start earlier than their position in the diagram and 
 | `BRN-004` | P0 | As a campaign or concierge workflow, I want cited approved facts or an explicit unknown. | Workspace/use-case-scoped relational/full-text retrieval returns only current approved facts plus source/version/freshness. Cross-tenant, expired, restricted, disputed, or missing facts yield no usable assertion and a machine-readable reason. Raw source prompt-stuffing and vector retrieval are absent; generated artifacts retain the immutable verified-context snapshot id. | BRN-003; OD-021/OD-026 accepted, ADR-0021/ADR-0026 |
 | `BRN-005` | P0 | As an owner, I want time-sensitive facts flagged for reverification. | Price, offer, descriptive booking-route metadata, policy, and claim facts use approved expiry rules; expiry prevents unreviewed external use, alerts the owner, and does not erase history. Live provider availability/capacity is never stored as Brain truth. | BRN-003; OD-020/OD-021/OD-029 accepted, ADR-0020/ADR-0021/ADR-0029 |
 
+**Implementation status (19 July 2026):** The synthetic/test-boundary `BRN-001` foundation is implemented and verified; see [Phase 1 execution evidence](./PHASE_1_EXECUTION.md). Production activation remains blocked by the applicable readiness evidence. `BRN-002` is the next executable story; `BRN-002` through `BRN-005` remain open, so Phase 1 is not complete.
+
 ## EPIC CAM — Goal-based campaign planning
 
 **Outcome:** A measurable owner goal becomes a typed, explainable campaign and funnel.  

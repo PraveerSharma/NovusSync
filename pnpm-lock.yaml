@@ -57,9 +57,15 @@ importers:
       '@novussync/config':
         specifier: workspace:*
         version: link:../../packages/config
+      '@novussync/domain':
+        specifier: workspace:*
+        version: link:../../packages/domain
       '@novussync/ui':
         specifier: workspace:*
         version: link:../../packages/ui
+      '@novussync/vertical-yoga':
+        specifier: workspace:*
+        version: link:../../packages/vertical-yoga
       '@supabase/ssr':
         specifier: 0.12.3
         version: 0.12.3(@supabase/supabase-js@2.110.7)

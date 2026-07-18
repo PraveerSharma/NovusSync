@@ -607,3 +607,124 @@ export const outboxMessages = pgTable(
     }),
   ],
 );
+
+export const businessProfileDrafts = pgTable(
+  "business_profile_draft",
+  {
+    organizationId: uuid("organization_id").notNull(),
+    workspaceId: uuid("workspace_id").notNull(),
+    profileId: text("profile_id").notNull(),
+    playbookId: text("playbook_id").notNull(),
+    playbookVersion: integer("playbook_version").notNull(),
+    values: jsonb("values")
+      .$type<Record<string, string | readonly string[]>>()
+      .default(sql`'{}'::jsonb`)
+      .notNull(),
+    version: integer("version").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull(),
+  },
+  (table) => [
+    foreignKey({
+      name: "business_profile_draft_workspace_fk",
+      columns: [table.organizationId, table.workspaceId],
+      foreignColumns: [workspaces.organizationId, workspaces.id],
+    }).onDelete("cascade"),
+    uniqueIndex("business_profile_draft_identity_unique").on(
+      table.organizationId,
+      table.workspaceId,
+      table.profileId,
+    ),
+    index("business_profile_draft_updated_idx").on(
+      table.organizationId,
+      table.workspaceId,
+      table.updatedAt,
+    ),
+    check("business_profile_draft_profile_id_present", sql`length(${table.profileId}) > 0`),
+    check("business_profile_draft_playbook_id_present", sql`length(${table.playbookId}) > 0`),
+    check("business_profile_draft_playbook_version_positive", sql`${table.playbookVersion} > 0`),
+    check("business_profile_draft_version_positive", sql`${table.version} > 0`),
+    check("business_profile_draft_values_object", sql`jsonb_typeof(${table.values}) = 'object'`),
+    check("business_profile_draft_time_order", sql`${table.updatedAt} >= ${table.createdAt}`),
+    pgPolicy("business_profile_draft_tenant_select", {
+      to: novussyncAppRole,
+      for: "select",
+      using: workspaceScope(table.organizationId, table.workspaceId),
+    }),
+    pgPolicy("business_profile_draft_tenant_insert", {
+      to: novussyncAppRole,
+      for: "insert",
+      withCheck: workspaceScope(table.organizationId, table.workspaceId),
+    }),
+    pgPolicy("business_profile_draft_tenant_update", {
+      to: novussyncAppRole,
+      for: "update",
+      using: workspaceScope(table.organizationId, table.workspaceId),
+      withCheck: workspaceScope(table.organizationId, table.workspaceId),
+    }),
+  ],
+);
+
+export const businessProfileDraftVersions = pgTable(
+  "business_profile_draft_version",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    organizationId: uuid("organization_id").notNull(),
+    workspaceId: uuid("workspace_id").notNull(),
+    profileId: text("profile_id").notNull(),
+    playbookId: text("playbook_id").notNull(),
+    playbookVersion: integer("playbook_version").notNull(),
+    values: jsonb("values")
+      .$type<Record<string, string | readonly string[]>>()
+      .default(sql`'{}'::jsonb`)
+      .notNull(),
+    version: integer("version").notNull(),
+    idempotencyKey: text("idempotency_key").notNull(),
+    profileCreatedAt: timestamp("profile_created_at", { withTimezone: true }).notNull(),
+    occurredAt: timestamp("occurred_at", { withTimezone: true }).notNull(),
+    recordedAt: timestamp("recorded_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    foreignKey({
+      name: "business_profile_draft_version_profile_fk",
+      columns: [table.organizationId, table.workspaceId, table.profileId],
+      foreignColumns: [
+        businessProfileDrafts.organizationId,
+        businessProfileDrafts.workspaceId,
+        businessProfileDrafts.profileId,
+      ],
+    }).onDelete("cascade"),
+    uniqueIndex("business_profile_draft_version_unique").on(
+      table.organizationId,
+      table.workspaceId,
+      table.profileId,
+      table.version,
+    ),
+    index("business_profile_draft_version_time_idx").on(
+      table.organizationId,
+      table.workspaceId,
+      table.profileId,
+      table.recordedAt,
+    ),
+    check("business_profile_draft_version_positive", sql`${table.version} > 0`),
+    check("business_profile_draft_version_playbook_positive", sql`${table.playbookVersion} > 0`),
+    check(
+      "business_profile_draft_version_values_object",
+      sql`jsonb_typeof(${table.values}) = 'object'`,
+    ),
+    check(
+      "business_profile_draft_version_time_order",
+      sql`${table.occurredAt} >= ${table.profileCreatedAt}`,
+    ),
+    pgPolicy("business_profile_draft_version_tenant_select", {
+      to: novussyncAppRole,
+      for: "select",
+      using: workspaceScope(table.organizationId, table.workspaceId),
+    }),
+    pgPolicy("business_profile_draft_version_tenant_insert", {
+      to: novussyncAppRole,
+      for: "insert",
+      withCheck: workspaceScope(table.organizationId, table.workspaceId),
+    }),
+  ],
+);

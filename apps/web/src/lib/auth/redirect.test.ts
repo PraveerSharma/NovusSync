@@ -10,6 +10,10 @@ test("allows the dashboard and preserves its local query and fragment", () => {
   );
 });
 
+test("allows the protected business profile destination", () => {
+  assert.equal(safeAuthDestination("/business-profile"), "/business-profile");
+});
+
 test("rejects external, protocol-relative, backslash, and unknown destinations", () => {
   for (const destination of [
     "https://example.com/dashboard",

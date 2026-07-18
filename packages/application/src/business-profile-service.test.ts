@@ -43,15 +43,15 @@ function createHarness(options: { authorized?: boolean } = {}) {
     },
   };
   const repository: BusinessProfileDraftRepositoryPort = {
-    async findById(_tenant, profileId) {
+    async findById(_context, _tenant, profileId) {
       return records.get(profileId) ?? null;
     },
-    async create(draft) {
+    async create(_context, draft) {
       calls.create += 1;
       records.set(draft.profileId, draft);
       return draft;
     },
-    async revise(draft) {
+    async revise(_context, draft) {
       calls.revise += 1;
       records.set(draft.profileId, draft);
       return draft;

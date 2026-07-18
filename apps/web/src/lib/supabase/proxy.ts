@@ -5,8 +5,13 @@ import { getAuthAccessMode } from "../auth/runtime";
 import { safeAuthDestination, signInLocation } from "../auth/redirect";
 import { getSupabasePublicConfig } from "./config";
 
-function isDashboardPath(pathname: string): boolean {
-  return pathname === "/dashboard" || pathname.startsWith("/dashboard/");
+function isProtectedWorkspacePath(pathname: string): boolean {
+  return (
+    pathname === "/dashboard" ||
+    pathname.startsWith("/dashboard/") ||
+    pathname === "/business-profile" ||
+    pathname.startsWith("/business-profile/")
+  );
 }
 
 function redirectWithSessionCookies(
@@ -60,7 +65,7 @@ export async function updateSession(request: NextRequest): Promise<NextResponse>
   const isAuthenticated = Boolean(data?.claims?.sub);
   const pathname = request.nextUrl.pathname;
 
-  if (!isAuthenticated && isDashboardPath(pathname)) {
+  if (!isAuthenticated && isProtectedWorkspacePath(pathname)) {
     const next = safeAuthDestination(`${pathname}${request.nextUrl.search}`);
     return redirectWithSessionCookies(request, supabaseResponse, signInLocation(next));
   }
