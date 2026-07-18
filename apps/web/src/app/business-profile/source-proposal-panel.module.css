@@ -335,7 +335,7 @@
 .clearBadge,
 .conflictBadge {
   padding: 0.28rem 0.48rem;
-  color: #2c6f5c;
+  color: #205c4a;
   font-weight: 750;
   background: #e1eee5;
   border-radius: 999px;
@@ -451,7 +451,6 @@
 
 @keyframes slide-in {
   from {
-    opacity: 0;
     transform: translateX(2rem);
   }
 }
@@ -464,7 +463,6 @@
 
 @keyframes reveal {
   from {
-    opacity: 0;
     transform: translateY(-0.25rem);
   }
 }
