@@ -274,6 +274,179 @@ export const auditEvents = pgTable(
   ],
 );
 
+export const leadLifecycles = pgTable(
+  "lead_lifecycle",
+  {
+    organizationId: uuid("organization_id").notNull(),
+    workspaceId: uuid("workspace_id").notNull(),
+    leadId: uuid("lead_id").notNull(),
+    stage: text("stage", {
+      enum: [
+        "new",
+        "contacted",
+        "qualified",
+        "booking_proposed",
+        "booked",
+        "booking_confirmed",
+        "outcome_verified",
+        "outcome_missed",
+        "conversion_follow_up",
+        "converted",
+        "closed_not_converted",
+      ],
+    }).notNull(),
+    version: integer("version").default(1).notNull(),
+    openedAt: timestamp("opened_at", { withTimezone: true }).notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull(),
+  },
+  (table) => [
+    primaryKey({
+      name: "lead_lifecycle_primary",
+      columns: [table.organizationId, table.workspaceId, table.leadId],
+    }),
+    foreignKey({
+      name: "lead_lifecycle_workspace_fk",
+      columns: [table.organizationId, table.workspaceId],
+      foreignColumns: [workspaces.organizationId, workspaces.id],
+    }).onDelete("restrict"),
+    index("lead_lifecycle_stage_idx").on(
+      table.organizationId,
+      table.workspaceId,
+      table.stage,
+      table.updatedAt,
+    ),
+    check(
+      "lead_lifecycle_stage_allowed",
+      sql`${table.stage} in (
+        'new', 'contacted', 'qualified', 'booking_proposed', 'booked',
+        'booking_confirmed', 'outcome_verified', 'outcome_missed',
+        'conversion_follow_up', 'converted', 'closed_not_converted'
+      )`,
+    ),
+    check("lead_lifecycle_version_positive", sql`${table.version} > 0`),
+    check("lead_lifecycle_time_order", sql`${table.updatedAt} >= ${table.openedAt}`),
+    pgPolicy("lead_lifecycle_tenant_access", {
+      to: novussyncAppRole,
+      for: "all",
+      using: workspaceScope(table.organizationId, table.workspaceId),
+      withCheck: workspaceScope(table.organizationId, table.workspaceId),
+    }),
+  ],
+);
+
+export const leadLifecycleTransitions = pgTable(
+  "lead_lifecycle_transition",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    organizationId: uuid("organization_id").notNull(),
+    workspaceId: uuid("workspace_id").notNull(),
+    leadId: uuid("lead_id").notNull(),
+    version: integer("version").notNull(),
+    previousStage: text("previous_stage", {
+      enum: [
+        "new",
+        "contacted",
+        "qualified",
+        "booking_proposed",
+        "booked",
+        "booking_confirmed",
+        "outcome_verified",
+        "outcome_missed",
+        "conversion_follow_up",
+        "converted",
+        "closed_not_converted",
+      ],
+    }),
+    nextStage: text("next_stage", {
+      enum: [
+        "new",
+        "contacted",
+        "qualified",
+        "booking_proposed",
+        "booked",
+        "booking_confirmed",
+        "outcome_verified",
+        "outcome_missed",
+        "conversion_follow_up",
+        "converted",
+        "closed_not_converted",
+      ],
+    }).notNull(),
+    reasonCode: text("reason_code"),
+    actorType: text("actor_type", { enum: ["human", "system"] }).notNull(),
+    actorId: uuid("actor_id").references(() => actors.id, { onDelete: "set null" }),
+    correlationId: uuid("correlation_id").notNull(),
+    occurredAt: timestamp("occurred_at", { withTimezone: true }).notNull(),
+    recordedAt: timestamp("recorded_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    foreignKey({
+      name: "lead_lifecycle_transition_lifecycle_fk",
+      columns: [table.organizationId, table.workspaceId, table.leadId],
+      foreignColumns: [
+        leadLifecycles.organizationId,
+        leadLifecycles.workspaceId,
+        leadLifecycles.leadId,
+      ],
+    }).onDelete("restrict"),
+    uniqueIndex("lead_lifecycle_transition_version_unique").on(
+      table.organizationId,
+      table.workspaceId,
+      table.leadId,
+      table.version,
+    ),
+    index("lead_lifecycle_transition_time_idx").on(
+      table.organizationId,
+      table.workspaceId,
+      table.leadId,
+      table.occurredAt,
+      table.id,
+    ),
+    index("lead_lifecycle_transition_actor_idx").on(table.actorId),
+    check("lead_lifecycle_transition_version_positive", sql`${table.version} > 0`),
+    check(
+      "lead_lifecycle_transition_previous_stage_allowed",
+      sql`${table.previousStage} is null or ${table.previousStage} in (
+        'new', 'contacted', 'qualified', 'booking_proposed', 'booked',
+        'booking_confirmed', 'outcome_verified', 'outcome_missed',
+        'conversion_follow_up', 'converted', 'closed_not_converted'
+      )`,
+    ),
+    check(
+      "lead_lifecycle_transition_next_stage_allowed",
+      sql`${table.nextStage} in (
+        'new', 'contacted', 'qualified', 'booking_proposed', 'booked',
+        'booking_confirmed', 'outcome_verified', 'outcome_missed',
+        'conversion_follow_up', 'converted', 'closed_not_converted'
+      )`,
+    ),
+    check(
+      "lead_lifecycle_transition_initial_shape",
+      sql`(${table.version} = 1 and ${table.previousStage} is null and ${table.nextStage} = 'new')
+        or (${table.version} > 1 and ${table.previousStage} is not null)`,
+    ),
+    check(
+      "lead_lifecycle_transition_actor_shape",
+      sql`(${table.actorType} = 'human' and ${table.actorId} is not null)
+        or ${table.actorType} = 'system'`,
+    ),
+    check(
+      "lead_lifecycle_transition_reason_code_format",
+      sql`${table.reasonCode} is null or ${table.reasonCode} ~ '^[A-Z][A-Z0-9_]{0,63}$'`,
+    ),
+    pgPolicy("lead_lifecycle_transition_tenant_select", {
+      to: novussyncAppRole,
+      for: "select",
+      using: workspaceScope(table.organizationId, table.workspaceId),
+    }),
+    pgPolicy("lead_lifecycle_transition_tenant_insert", {
+      to: novussyncAppRole,
+      for: "insert",
+      withCheck: workspaceScope(table.organizationId, table.workspaceId),
+    }),
+  ],
+);
+
 export const idempotencyRecords = pgTable(
   "idempotency_record",
   {

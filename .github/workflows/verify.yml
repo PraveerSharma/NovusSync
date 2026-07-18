@@ -73,13 +73,28 @@ jobs:
         run: pnpm build
 
   ci-integration:
-    name: Supabase integration
+    name: PostgreSQL integration
     needs: ci-policy
     runs-on: ubuntu-24.04
     timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:17.6-alpine
+        env:
+          POSTGRES_DB: novussync_test
+          POSTGRES_PASSWORD: novussync_test
+          POSTGRES_USER: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d novussync_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
     env:
       APP_ENV: test
-      TEST_DATABASE_URL: ${{ secrets.SUPABASE_TEST_DATABASE_URL }}
+      DATABASE_MIGRATION_URL: postgresql://postgres:novussync_test@localhost:5432/novussync_test
+      TEST_DATABASE_URL: postgresql://postgres:novussync_test@localhost:5432/novussync_test
     steps:
       - name: Check out repository
         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
@@ -94,6 +109,8 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+      - name: Apply reviewed database migrations
+        run: pnpm db:migrate
       - name: Run isolated database integration tests
         run: pnpm test:integration
 

@@ -43,6 +43,13 @@
       "when": 1784371676945,
       "tag": "0005_identity_access_resolver",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1784392401487,
+      "tag": "0006_lead_lifecycle",
+      "breakpoints": true
     }
   ]
 }

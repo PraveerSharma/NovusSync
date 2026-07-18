@@ -22,6 +22,7 @@
   },
   "dependencies": {
     "@novussync/application": "workspace:*",
+    "@novussync/domain": "workspace:*",
     "drizzle-orm": "0.45.2",
     "pg": "8.22.0"
   },

@@ -19,6 +19,7 @@ export async function withTenantTransaction<T>(
   assertTenantContext(context);
 
   return database.transaction(async (transaction) => {
+    await transaction.execute(sql`set local role novussync_app`);
     await transaction.execute(sql`
       select
         set_config('app.organization_id', ${context.organizationId}, true),
