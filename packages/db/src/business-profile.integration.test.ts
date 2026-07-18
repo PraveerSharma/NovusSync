@@ -147,7 +147,7 @@ describe("tenant-scoped business profile draft persistence", () => {
     ).rejects.toMatchObject({ code: "version_conflict" });
   });
 
-  it("prevents mutation of recorded profile versions", async () => {
+  it("enforces privilege and trigger boundaries on recorded profile versions", async () => {
     const profileId = `profile-${randomUUID()}`;
     const draft = createBusinessProfileDraft({
       profileId,
@@ -163,8 +163,27 @@ describe("tenant-scoped business profile draft persistence", () => {
           "update business_profile_draft_version set idempotency_key = 'changed' where profile_id = $1",
           [profileId],
         ),
-      ).rejects.toMatchObject({ code: "55000" });
+      ).rejects.toMatchObject({ code: "42501" });
     });
+
+    await expect(
+      database.pool.query(
+        "update business_profile_draft_version set idempotency_key = 'changed' where profile_id = $1",
+        [profileId],
+      ),
+    ).rejects.toMatchObject({ code: "55000" });
+    await expect(
+      database.pool.query("delete from business_profile_draft_version where profile_id = $1", [
+        profileId,
+      ]),
+    ).rejects.toMatchObject({ code: "55000" });
+
+    const recorded = await database.pool.query<{ idempotency_key: string }>(
+      "select idempotency_key from business_profile_draft_version where profile_id = $1",
+      [profileId],
+    );
+    expect(recorded.rows).toHaveLength(1);
+    expect(recorded.rows[0]?.idempotency_key).not.toBe("changed");
   });
 });
 
