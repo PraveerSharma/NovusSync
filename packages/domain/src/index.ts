@@ -352,3 +352,5 @@ function assertOrigin(origin: CommandOrigin): void {
     throw new Error("Job command origin requires a positive attempt number");
   }
 }
+
+export * from "./business-profile.ts";

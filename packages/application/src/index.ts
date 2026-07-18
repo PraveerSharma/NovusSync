@@ -73,3 +73,5 @@ export function createCommandEnvelope<TPayload = Record<string, unknown>>(
     createdAt,
   });
 }
+
+export * from "./business-profile-service.ts";

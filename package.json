@@ -23,7 +23,7 @@
     "lint": "eslint apps packages scripts --max-warnings=0 && node scripts/quality/check-boundaries.mjs",
     "typecheck": "pnpm -r typecheck",
     "test": "pnpm run test:unit && pnpm run test:integration && pnpm run test:contract && pnpm run test:ai && pnpm run test:e2e",
-    "test:unit": "pnpm --filter @novussync/domain --filter @novussync/application --filter @novussync/config --filter @novussync/integrations --filter @novussync/web test",
+    "test:unit": "pnpm --filter @novussync/domain --filter @novussync/application --filter @novussync/config --filter @novussync/integrations --filter @novussync/vertical-yoga --filter @novussync/web test",
     "test:integration": "pnpm --filter @novussync/db test",
     "test:contract": "pnpm --filter @novussync/contract-tests test",
     "test:ai": "pnpm --filter @novussync/offline-ai-tests test",

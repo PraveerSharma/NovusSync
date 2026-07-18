@@ -56,6 +56,21 @@ for (const file of files) {
   if (
     (relativePath.startsWith(`packages${path.sep}domain${path.sep}`) ||
       relativePath.startsWith(`packages${path.sep}application${path.sep}`)) &&
+    /["']@novussync\/vertical-/.test(source)
+  ) {
+    errors.push(`${relativePath}: generic core cannot import a vertical pack.`);
+  }
+
+  if (
+    relativePath.startsWith(`packages${path.sep}vertical-`) &&
+    /["']@novussync\/(?:application|db|integrations|ui)["']/.test(source)
+  ) {
+    errors.push(`${relativePath}: a vertical pack can depend only on generic domain contracts.`);
+  }
+
+  if (
+    (relativePath.startsWith(`packages${path.sep}domain${path.sep}`) ||
+      relativePath.startsWith(`packages${path.sep}application${path.sep}`)) &&
     /["'](?:@supabase\/|@vercel\/|drizzle-orm|next|openai|pg|react)/.test(source)
   ) {
     errors.push(`${relativePath}: provider/framework dependency crossed a core boundary.`);
