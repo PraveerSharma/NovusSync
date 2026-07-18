@@ -1,0 +1,49 @@
+{
+  "name": "novussync",
+  "version": "0.0.0",
+  "private": true,
+  "packageManager": "pnpm@11.4.0",
+  "engines": {
+    "node": "24.18.0",
+    "pnpm": "11.4.0"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*",
+    "tests/*"
+  ],
+  "scripts": {
+    "dev": "pnpm run env:check && pnpm --parallel --filter @novussync/web --filter @novussync/jobs run dev",
+    "dev:web": "pnpm -C apps/web dev",
+    "dev:jobs": "pnpm -C apps/jobs dev",
+    "build": "pnpm -r build",
+    "env:check": "node scripts/quality/env-check.mjs",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "eslint apps packages scripts --max-warnings=0 && node scripts/quality/check-boundaries.mjs",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm run test:unit && pnpm run test:integration && pnpm run test:contract && pnpm run test:ai && pnpm run test:e2e",
+    "test:unit": "pnpm --filter @novussync/domain --filter @novussync/application --filter @novussync/config --filter @novussync/integrations --filter @novussync/web test",
+    "test:integration": "pnpm --filter @novussync/db test",
+    "test:contract": "pnpm --filter @novussync/contract-tests test",
+    "test:ai": "pnpm --filter @novussync/offline-ai-tests test",
+    "test:e2e": "pnpm --filter @novussync/e2e test",
+    "verify:policy": "node scripts/quality/verify-policy.mjs",
+    "policy:check": "node scripts/quality/check-repository-policy.mjs && node scripts/quality/check-boundaries.mjs",
+    "verify": "node scripts/quality/verify.mjs",
+    "db:up": "node scripts/quality/cloud-database-only.mjs up",
+    "db:down": "node scripts/quality/cloud-database-only.mjs down",
+    "db:generate": "pnpm --filter @novussync/db db:generate",
+    "db:migrate": "pnpm --filter @novussync/db db:migrate",
+    "db:status": "pnpm --filter @novussync/db db:status",
+    "db:reset:test": "pnpm --filter @novussync/db db:reset"
+  },
+  "devDependencies": {
+    "@eslint/compat": "2.1.0",
+    "@types/node": "24.13.3",
+    "eslint": "10.0.0",
+    "eslint-config-next": "16.2.10",
+    "prettier": "3.9.5",
+    "typescript": "6.0.3"
+  }
+}

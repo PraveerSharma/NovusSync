@@ -1,0 +1,12 @@
+interview_code,studio_code,interview_sequence,eligibility_result,eligibility_reason_category,denominator_exclusion_reason,pain_1_result,pain_2_result,four_week_baseline_status,willingness_stage,concrete_next_step_category,counter_evidence_summary,new_material_finding,contradiction_category,contradiction_severity,contradiction_disposition_status,partner_candidate,prototype_test_candidate,manual_workflow_candidate
+TRN-INT-001,TRN-STU-001,1,ELIGIBLE,,,YES,YES,USABLE,CONCRETE_NEXT_STEP,READINESS_REVIEW,,NO,,,,YES,YES,YES
+TRN-INT-002,TRN-STU-002,2,ELIGIBLE,,,YES,YES,PARTIAL,CONCRETE_NEXT_STEP,PROTOTYPE_TEST,,NO,,,,YES,YES,MAYBE
+TRN-INT-003,TRN-STU-003,3,ELIGIBLE,,,YES,YES,USABLE,CONCRETE_NEXT_STEP,MANUAL_WORKFLOW,,NO,,,,YES,YES,YES
+TRN-INT-004,TRN-STU-004,4,ELIGIBLE,,,YES,YES,PARTIAL,VERBAL_INTEREST,FOLLOW_UP,,NO,,,,MAYBE,YES,MAYBE
+TRN-INT-005,TRN-STU-005,5,ELIGIBLE,,,YES,YES,NONE,VERBAL_INTEREST,PROTOTYPE_TEST,,NO,,,,MAYBE,YES,NO
+TRN-INT-006,TRN-STU-006,6,ELIGIBLE,,,YES,YES,USABLE,CONCRETE_NEXT_STEP,READINESS_REVIEW,,NO,,,,YES,YES,YES
+TRN-INT-007,TRN-STU-007,7,ELIGIBLE,,,YES,NO,PARTIAL,NONE,STOP,Attribution is already reliable,NO,,,,NO,NO,NO
+TRN-INT-008,TRN-STU-008,8,ELIGIBLE,,,NO,YES,PARTIAL,NONE,STOP,Response is already fast,NO,,,,NO,NO,NO
+TRN-INT-009,TRN-STU-009,9,ELIGIBLE,,,NO,NO,USABLE,NONE,STOP,Current workflow solves both pains,NO,,,,NO,NO,NO
+TRN-INT-010,TRN-STU-010,10,ELIGIBLE,,,YES,NO,PARTIAL,VERBAL_INTEREST,FOLLOW_UP,Attribution is already reliable,NO,,,,MAYBE,YES,NO
+

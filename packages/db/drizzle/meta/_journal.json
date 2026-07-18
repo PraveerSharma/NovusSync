@@ -1,0 +1,48 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1784285406000,
+      "tag": "0000_phase0_foundation",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1784285413000,
+      "tag": "0001_foundation_guards",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1784370066000,
+      "tag": "0002_foundation_admin_role",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1784370549000,
+      "tag": "0003_foundation_advisor_hardening",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1784370777000,
+      "tag": "0004_foundation_policy_initplans",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1784371676945,
+      "tag": "0005_identity_access_resolver",
+      "breakpoints": true
+    }
+  ]
+}

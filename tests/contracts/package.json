@@ -1,0 +1,16 @@
+{
+  "name": "@novussync/contract-tests",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "lint": "eslint . --max-warnings=0",
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "node --test foundation.contract.test.ts"
+  },
+  "dependencies": {
+    "@novussync/application": "workspace:*",
+    "@novussync/config": "workspace:*"
+  }
+}

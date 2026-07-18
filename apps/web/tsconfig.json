@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "jsx": "preserve",
+    "paths": {
+      "@novussync/domain/*": ["../../packages/domain/src/*"],
+      "@novussync/application/*": ["../../packages/application/src/*"],
+      "@novussync/config/*": ["../../packages/config/src/*"]
+    },
+    "types": ["node"]
+  },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
+  "exclude": ["node_modules"]
+}

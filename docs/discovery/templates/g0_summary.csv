@@ -1,0 +1,13 @@
+evidence_id,metric,threshold,current_numerator,current_denominator,current_result,status,evidence_snapshot_link,owner,last_reviewed_at,blocking_followup
+G0-01,Decision classification,"34 accepted / 3 deferred / 0 open",34,37,"34 accepted / 3 deferred / 0 open",PASS,,Founder,2026-07-14,
+G0-02,Eligible-owner interviews,"At least 10 unique included eligible studio-owner records; continue toward 20 while findings are unstable",0,10,0,PENDING,,Founder,,Complete eligible-owner interviews
+G0-03,Repeated dual pain,"At least 70% of included unique eligible studio-owner records show both pains",0,0,,PENDING,,Founder,,Collect behavioral evidence and calculate numerator/denominator
+G0-04,Design-partner commitments,"Five signed two-cycle participation commitments",0,5,0,PENDING,,Founder,,Complete approved participation process
+G0-05,Baseline and governed readiness,"At least three partners baseline/channel/outcome ready",0,3,0,PENDING,,Founder,,Verify four-week baseline and readiness
+G0-06,Paid commitment,"At least two approved payments or credited deposits",0,2,0,PENDING,,Founder,,Approve payment route and collect evidence
+G0-07,Manual workflow validity,"Two eligible studios complete documented workflow",0,2,0,PENDING,,Delivery lead,,Observe studio-controlled workflows
+G0-08,Clickable-prototype validity,"Five eligible owners complete test with issues dispositioned",0,5,0,PENDING,,Product lead,,Run owner tests and disposition material issues
+G0-09,Outcome rule,"Three examples classify consistently",0,3,0,IN_REVIEW,docs/discovery/OUTCOME_CONSISTENCY_WORKSHEET.md,Founder + product lead,,Founder and product lead independently classify at least three blind examples
+G0-10,Channel and booking feasibility,"All five partners have workable channel and booking route",0,5,0,PENDING,,Delivery lead,,Complete five-partner feasibility inventory
+G0-11,OD-033 evidence plan,"Checklist with owners and later gate recorded",1,1,1,PASS,docs/readiness/OD-033_LIVE_READINESS.md,Founder,2026-07-14,
+G0-12,Contradiction review,"Every material contradiction dispositioned; none carried silently",0,0,,PENDING,,Founder,,Review findings and dispositions

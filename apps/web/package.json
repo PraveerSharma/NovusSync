@@ -1,0 +1,35 @@
+{
+  "name": "@novussync/web",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node ../../scripts/quality/run-with-foundation-env.mjs pnpm exec next dev",
+    "build": "node ../../scripts/quality/run-with-foundation-env.mjs --app-env=local --node-env=production pnpm exec next build",
+    "start": "next start",
+    "lint": "eslint src --max-warnings=0",
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "node --test src/lib/auth/*.test.ts"
+  },
+  "dependencies": {
+    "@fontsource-variable/manrope": "5.2.8",
+    "@fontsource-variable/newsreader": "5.2.10",
+    "@novussync/config": "workspace:*",
+    "@novussync/ui": "workspace:*",
+    "@supabase/ssr": "0.12.3",
+    "@supabase/supabase-js": "2.110.7",
+    "next": "16.2.10",
+    "react": "19.2.7",
+    "react-dom": "19.2.7"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "4.3.3",
+    "@types/node": "24.13.3",
+    "@types/react": "19.0.0",
+    "@types/react-dom": "19.0.0",
+    "eslint": "10.0.0",
+    "postcss": "8.5.19",
+    "tailwindcss": "4.3.3",
+    "typescript": "6.0.3"
+  }
+}

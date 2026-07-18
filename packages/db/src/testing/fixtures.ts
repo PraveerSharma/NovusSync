@@ -1,0 +1,11 @@
+export const syntheticTenantA = {
+  organizationId: "00000000-0000-4000-8000-000000000001",
+  workspaceId: "00000000-0000-4000-8000-000000000101",
+  actorId: "00000000-0000-4000-8000-000000000201",
+} as const;
+
+export const syntheticTenantB = {
+  organizationId: "00000000-0000-4000-8000-000000000002",
+  workspaceId: "00000000-0000-4000-8000-000000000102",
+  actorId: "00000000-0000-4000-8000-000000000202",
+} as const;

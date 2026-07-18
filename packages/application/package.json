@@ -1,0 +1,17 @@
+{
+  "name": "@novussync/application",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "lint": "eslint src --max-warnings=0",
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "node --test src/*.test.ts"
+  },
+  "dependencies": {
+    "@novussync/domain": "workspace:*",
+    "@novussync/config": "workspace:*"
+  }
+}

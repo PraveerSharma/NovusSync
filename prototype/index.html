@@ -1,0 +1,717 @@
+<!doctype html>
+<html lang="en-IN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Synthetic Gate G0 prototype for a managed campaign-to-attendance workflow."
+    />
+    <title>Nila Yoga Studio | Discovery Prototype</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Ctext x='32' y='43' font-size='34' text-anchor='middle' fill='white' font-family='Arial'%3EN%3C/text%3E%3C/svg%3E"
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Skip to prototype content</a>
+
+    <div class="prototype-banner" role="note">
+      <strong>Discovery prototype.</strong> Fictional studio and synthetic data. No account,
+      message, booking, payment, AI, or publication is connected.
+    </div>
+
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="Prototype navigation">
+        <div class="brand-block">
+          <span class="brand-mark" aria-hidden="true">N</span>
+          <div>
+            <p class="brand-name">Nila Yoga Studio</p>
+            <p class="brand-meta">Fictional Bengaluru business</p>
+          </div>
+        </div>
+
+        <nav class="screen-nav" aria-label="Workflow screens">
+          <button class="nav-item is-active" type="button" data-view="overview" aria-current="page">
+            <span class="nav-number">01</span>
+            Overview
+          </button>
+          <button class="nav-item" type="button" data-view="facts">
+            <span class="nav-number">02</span>
+            Business facts
+          </button>
+          <button class="nav-item" type="button" data-view="campaign">
+            <span class="nav-number">03</span>
+            Campaign proposal
+          </button>
+          <button class="nav-item" type="button" data-view="approval">
+            <span class="nav-number">04</span>
+            Exact approval
+          </button>
+          <button class="nav-item" type="button" data-view="publication">
+            <span class="nav-number">05</span>
+            Manual publication
+          </button>
+          <button class="nav-item" type="button" data-view="leads">
+            <span class="nav-number">06</span>
+            Leads and consent
+          </button>
+          <button class="nav-item" type="button" data-view="booking">
+            <span class="nav-number">07</span>
+            Booking and attendance
+          </button>
+          <button class="nav-item" type="button" data-view="learning">
+            <span class="nav-number">08</span>
+            Weekly learning
+          </button>
+        </nav>
+
+        <div class="sidebar-note">
+          <p class="eyebrow">Manual boundary</p>
+          <p>
+            Humans publish Instagram posts and send WhatsApp messages in the official apps.
+            This prototype records work and evidence only.
+          </p>
+        </div>
+      </aside>
+
+      <div class="workspace">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">Gate G0 owner test</p>
+            <p class="topbar-title" id="currentViewTitle">Campaign overview</p>
+          </div>
+          <div class="test-progress" aria-labelledby="testProgressLabel">
+            <div class="progress-copy">
+              <span id="testProgressLabel">Prototype tasks</span>
+              <strong id="taskCount" class="tabular">0 of 5 complete</strong>
+            </div>
+            <progress id="taskProgress" max="5" value="0">0 of 5 complete</progress>
+          </div>
+          <button class="button button-secondary" id="resetDemo" type="button">
+            Reset synthetic demo
+          </button>
+        </header>
+
+        <div class="live-region" id="liveRegion" aria-live="polite" aria-atomic="true"></div>
+
+        <main id="main-content" tabindex="-1">
+          <section class="screen" id="view-overview" data-screen="overview" aria-labelledby="overviewTitle">
+            <div class="page-heading">
+              <div>
+                <p class="eyebrow">28-day managed cycle · Draft</p>
+                <h1 id="overviewTitle">Turn one campaign into a verified attended trial</h1>
+                <p class="page-intro">
+                  One offer, one outcome, exact owner approval, human-operated channels, and
+                  evidence that stays honest when something is unknown.
+                </p>
+              </div>
+              <span class="status status-warning">4 items need owner review</span>
+            </div>
+
+            <div class="metric-grid" aria-label="Campaign summary">
+              <article class="metric-card">
+                <p class="metric-label">Offer</p>
+                <p class="metric-value">3-class intro pass</p>
+                <p class="metric-note">One price fact needs correction</p>
+              </article>
+              <article class="metric-card">
+                <p class="metric-label">Primary outcome</p>
+                <p class="metric-value">Attended trial</p>
+                <p class="metric-note">Verified by studio staff</p>
+              </article>
+              <article class="metric-card">
+                <p class="metric-label">Channel</p>
+                <p class="metric-value">Instagram + hosted form</p>
+                <p class="metric-note">WhatsApp is a manual secondary route</p>
+              </article>
+              <article class="metric-card">
+                <p class="metric-label">Planned content</p>
+                <p class="metric-value tabular">6 items</p>
+                <p class="metric-note">4 single images · 2 carousels</p>
+              </article>
+            </div>
+
+            <div class="content-grid content-grid-main">
+              <article class="panel">
+                <div class="panel-header">
+                  <div>
+                    <p class="eyebrow">Readiness path</p>
+                    <h2>What must happen before this campaign can run</h2>
+                  </div>
+                </div>
+                <ol class="readiness-list">
+                  <li class="readiness-item readiness-done">
+                    <span class="step-state" aria-hidden="true">Done</span>
+                    <div>
+                      <strong>Campaign goal selected</strong>
+                      <p>Qualified attended introductory trial, not raw reach or clicks.</p>
+                    </div>
+                  </li>
+                  <li class="readiness-item readiness-current">
+                    <span class="step-state" aria-hidden="true">Now</span>
+                    <div>
+                      <strong>Verify business facts</strong>
+                      <p>The proposed intro price conflicts with the owner-supplied brochure.</p>
+                    </div>
+                  </li>
+                  <li class="readiness-item">
+                    <span class="step-state" aria-hidden="true">Next</span>
+                    <div>
+                      <strong>Review and approve exact content</strong>
+                      <p>Any changed text, image, price, CTA, or disclaimer needs reapproval.</p>
+                    </div>
+                  </li>
+                  <li class="readiness-item">
+                    <span class="step-state" aria-hidden="true">Later</span>
+                    <div>
+                      <strong>Complete manual channel and booking rehearsal</strong>
+                      <p>Named humans act through official accounts; external booking stays authoritative.</p>
+                    </div>
+                  </li>
+                </ol>
+                <button class="button button-primary" type="button" data-go-view="facts">
+                  Review business facts
+                </button>
+              </article>
+
+              <aside class="panel test-panel" aria-labelledby="testTasksTitle">
+                <p class="eyebrow">Owner test</p>
+                <h2 id="testTasksTitle">Five tasks to complete without coaching</h2>
+                <ol class="task-list" id="taskList">
+                  <li data-task-row="fact"><span class="task-marker" aria-hidden="true">1</span> Correct the intro price</li>
+                  <li data-task-row="approval"><span class="task-marker" aria-hidden="true">2</span> Approve the changed carousel</li>
+                  <li data-task-row="manual"><span class="task-marker" aria-hidden="true">3</span> Confirm who publishes and messages</li>
+                  <li data-task-row="optout"><span class="task-marker" aria-hidden="true">4</span> Record a Lead opt-out</li>
+                  <li data-task-row="outcome"><span class="task-marker" aria-hidden="true">5</span> Verify attendance and decide the experiment</li>
+                </ol>
+                <p class="quiet-note">
+                  The interface records completion for the facilitator. It does not send anything outside this page.
+                </p>
+              </aside>
+            </div>
+          </section>
+
+          <section class="screen" id="view-facts" data-screen="facts" aria-labelledby="factsTitle" hidden>
+            <div class="page-heading">
+              <div>
+                <p class="eyebrow">Verified Business Brain</p>
+                <h1 id="factsTitle">Review the facts used in every proposal</h1>
+                <p class="page-intro">
+                  Each fact shows its source and review state. Unsupported facts stay out of customer-facing work.
+                </p>
+              </div>
+              <span class="status status-warning" id="factSummaryStatus">1 conflict</span>
+            </div>
+
+            <div class="notice notice-warning" id="priceConflictNotice" role="alert">
+              <div>
+                <strong>Price mismatch found</strong>
+                <p>The campaign draft says INR 1,499. The owner-supplied June brochure says INR 999.</p>
+              </div>
+            </div>
+
+            <div class="fact-grid">
+              <article class="fact-card fact-card-attention">
+                <div class="fact-card-header">
+                  <div>
+                    <p class="eyebrow">Introductory offer price</p>
+                    <p class="fact-value tabular" id="introPriceValue">INR 1,499</p>
+                  </div>
+                  <span class="status status-warning" id="introPriceStatus">Needs review</span>
+                </div>
+                <dl class="detail-list">
+                  <div><dt>Draft source</dt><dd>Onboarding form · 12 July</dd></div>
+                  <div><dt>Conflicting source</dt><dd>Owner brochure · June · INR 999</dd></div>
+                  <div><dt>Used by</dt><dd>Content items 01–06, hosted form, WhatsApp playbook</dd></div>
+                </dl>
+                <form class="inline-form" id="priceCorrectionForm">
+                  <label for="introPriceInput">Correct owner-approved price</label>
+                  <div class="field-row">
+                    <input
+                      id="introPriceInput"
+                      name="introPrice"
+                      type="text"
+                      inputmode="numeric"
+                      value="INR 1,499"
+                      aria-describedby="priceHelp"
+                    />
+                    <button class="button button-primary" type="submit">Save corrected fact</button>
+                  </div>
+                  <p class="field-help" id="priceHelp">Task evidence expects the brochure value: INR 999.</p>
+                  <p class="field-error" id="priceError" role="alert" hidden></p>
+                </form>
+              </article>
+
+              <article class="fact-card">
+                <div class="fact-card-header">
+                  <div>
+                    <p class="eyebrow">Trial structure</p>
+                    <p class="fact-value">Three classes in seven days</p>
+                  </div>
+                  <span class="status status-success">Owner verified</span>
+                </div>
+                <dl class="detail-list">
+                  <div><dt>Source</dt><dd>Owner interview · 10 July</dd></div>
+                  <div><dt>Last reviewed</dt><dd>12 July · Priya S.</dd></div>
+                </dl>
+              </article>
+
+              <article class="fact-card">
+                <div class="fact-card-header">
+                  <div>
+                    <p class="eyebrow">Locations</p>
+                    <p class="fact-value">Indiranagar and HSR Layout</p>
+                  </div>
+                  <span class="status status-success">Owner verified</span>
+                </div>
+                <dl class="detail-list">
+                  <div><dt>Source</dt><dd>Approved website pages</dd></div>
+                  <div><dt>Booking owner</dt><dd>External scheduler</dd></div>
+                </dl>
+              </article>
+
+              <article class="fact-card">
+                <div class="fact-card-header">
+                  <div>
+                    <p class="eyebrow">Claims boundary</p>
+                    <p class="fact-value">Beginner-friendly, no medical claims</p>
+                  </div>
+                  <span class="status status-success">Policy checked</span>
+                </div>
+                <dl class="detail-list">
+                  <div><dt>Allowed</dt><dd>Class format, schedule, verified instructor facts</dd></div>
+                  <div><dt>Blocked</dt><dd>Therapeutic, guaranteed-result, or body-shaming claims</dd></div>
+                </dl>
+              </article>
+            </div>
+
+            <div class="screen-actions">
+              <button class="button button-secondary" type="button" data-go-view="overview">Back to overview</button>
+              <button class="button button-primary" type="button" data-go-view="campaign">Review campaign proposal</button>
+            </div>
+          </section>
+
+          <section class="screen" id="view-campaign" data-screen="campaign" aria-labelledby="campaignTitle" hidden>
+            <div class="page-heading">
+              <div>
+                <p class="eyebrow">Campaign proposal · CU-01</p>
+                <h1 id="campaignTitle">A bounded campaign, not an endless content calendar</h1>
+                <p class="page-intro">
+                  The product proposes. The owner controls facts, exact content, account use, and activation.
+                </p>
+              </div>
+              <span class="status status-neutral">Draft version 3</span>
+            </div>
+
+            <div class="content-grid content-grid-main">
+              <article class="panel">
+                <div class="summary-grid">
+                  <dl class="summary-item"><dt>Goal</dt><dd>Qualified attended intro trial</dd></dl>
+                  <dl class="summary-item"><dt>Audience</dt><dd>Adults near Indiranagar or HSR starting a regular yoga practice</dd></dl>
+                  <dl class="summary-item"><dt>Offer</dt><dd><span id="campaignPrice">INR 1,499</span> · three classes in seven days</dd></dl>
+                  <dl class="summary-item"><dt>Primary CTA</dt><dd>Check the hosted form, then open the studio's booking route</dd></dl>
+                  <dl class="summary-item"><dt>Qualification</dt><dd>Adult, preferred location, suitable class timing, owner review for sensitive answers</dd></dl>
+                  <dl class="summary-item"><dt>Active period</dt><dd>Up to 28 days, with bounded booking and attendance tails</dd></dl>
+                </div>
+              </article>
+
+              <aside class="panel">
+                <p class="eyebrow">Responsibility</p>
+                <h2>What software does and does not do</h2>
+                <ul class="check-list">
+                  <li><strong>Proposes:</strong> grounded copy, layout, form, replies, and next experiment.</li>
+                  <li><strong>Checks:</strong> required facts, claims, exact versions, consent, and missing evidence.</li>
+                  <li><strong>Does not:</strong> publish, message, book, approve, spend, or infer attendance.</li>
+                </ul>
+              </aside>
+            </div>
+
+            <article class="panel">
+              <div class="panel-header">
+                <div>
+                  <p class="eyebrow">Six proposed content items</p>
+                  <h2>Every item remains private until exact approval</h2>
+                </div>
+              </div>
+              <div class="content-table-wrap">
+                <table>
+                  <thead>
+                    <tr><th>Item</th><th>Purpose</th><th>Format</th><th>State</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr><td>01 · Start gently</td><td>Introduce the beginner offer</td><td>Single image</td><td><span class="status status-success">Ready</span></td></tr>
+                    <tr><td>02 · What to expect</td><td>Reduce first-class anxiety</td><td>Carousel · 4 slides</td><td><span class="status status-success">Ready</span></td></tr>
+                    <tr><td>03 · Two locations</td><td>Explain provider-owned choice</td><td>Single image</td><td><span class="status status-success">Ready</span></td></tr>
+                    <tr><td>04 · Intro pass</td><td>Explain offer and CTA</td><td>Carousel · 5 slides</td><td><span class="status status-warning">Changed</span></td></tr>
+                    <tr><td>05 · Instructor facts</td><td>Use verified credentials only</td><td>Single image</td><td><span class="status status-success">Ready</span></td></tr>
+                    <tr><td>06 · Last reminder</td><td>Close the active campaign</td><td>Single image</td><td><span class="status status-neutral">Draft</span></td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </article>
+
+            <div class="screen-actions">
+              <button class="button button-secondary" type="button" data-go-view="facts">Back to facts</button>
+              <button class="button button-primary" type="button" data-go-view="approval">Compare exact versions</button>
+            </div>
+          </section>
+
+          <section class="screen" id="view-approval" data-screen="approval" aria-labelledby="approvalTitle" hidden>
+            <div class="page-heading">
+              <div>
+                <p class="eyebrow">Content item 04 · Carousel</p>
+                <h1 id="approvalTitle">Approve the exact version that a human may publish</h1>
+                <p class="page-intro">
+                  Version 2 was approved. Version 3 changed slide 2 and the CTA, so the earlier approval no longer applies.
+                </p>
+              </div>
+              <span class="status status-warning" id="approvalStatus">Version 3 awaiting approval</span>
+            </div>
+
+            <div class="version-grid">
+              <article class="version-card">
+                <div class="version-header">
+                  <div><p class="eyebrow">Version 2</p><h2>Previously approved</h2></div>
+                  <span class="status status-neutral">Superseded</span>
+                </div>
+                <div class="carousel-preview" aria-label="Version 2 text preview">
+                  <p class="preview-kicker">Slide 2 of 5</p>
+                  <p class="preview-title">Three beginner classes</p>
+                  <p>Choose either Indiranagar or HSR when you book.</p>
+                  <p class="preview-cta">Send us a WhatsApp message to ask about times.</p>
+                </div>
+              </article>
+
+              <article class="version-card version-card-current">
+                <div class="version-header">
+                  <div><p class="eyebrow">Version 3</p><h2>Current candidate</h2></div>
+                  <span class="status status-warning">2 changes</span>
+                </div>
+                <div class="carousel-preview" aria-label="Version 3 text preview">
+                  <p class="preview-kicker">Slide 2 of 5</p>
+                  <p class="preview-title">Three beginner classes for <span id="approvalPrice">INR 1,499</span></p>
+                  <p>Choose your location and view current class times in the studio's booking page.</p>
+                  <p class="preview-cta">Check eligibility and available routes.</p>
+                </div>
+              </article>
+            </div>
+
+            <article class="panel change-panel">
+              <h2>Review the changes</h2>
+              <ul class="change-list">
+                <li><strong>Price added:</strong> Uses the current Business Brain value.</li>
+                <li><strong>CTA changed:</strong> Hosted form and authoritative booking route replace an ambiguous WhatsApp request.</li>
+                <li><strong>Unchanged:</strong> Image, logo, locations, dimensions, disclaimer, and slide order.</li>
+              </ul>
+              <label class="checkbox-row">
+                <input id="reviewConfirmation" type="checkbox" />
+                <span>I reviewed the exact current text, price, CTA, image, and disclaimer.</span>
+              </label>
+              <p class="field-error" id="approvalError" role="alert" hidden></p>
+              <div class="button-row">
+                <button class="button button-primary" id="approveVersion" type="button">Approve exact version 3</button>
+                <button class="button button-secondary" id="requestChange" type="button">Request a change</button>
+              </div>
+              <p class="quiet-note" id="approvalRecord">No current approval record.</p>
+            </article>
+
+            <div class="screen-actions">
+              <button class="button button-secondary" type="button" data-go-view="campaign">Back to proposal</button>
+              <button class="button button-primary" type="button" data-go-view="publication">Review manual publication</button>
+            </div>
+          </section>
+
+          <section class="screen" id="view-publication" data-screen="publication" aria-labelledby="publicationTitle" hidden>
+            <div class="page-heading">
+              <div>
+                <p class="eyebrow">Manual Instagram work</p>
+                <h1 id="publicationTitle">The product prepares and records. A named human publishes.</h1>
+                <p class="page-intro">
+                  There is no Meta connection in this prototype or the initial MVP. A due item is not a published item.
+                </p>
+              </div>
+              <span class="status status-warning">No provider confirmation</span>
+            </div>
+
+            <div class="notice notice-info">
+              <div>
+                <strong>Nothing here can publish to Instagram</strong>
+                <p>Priya opens the official Instagram account, checks exact version 3, publishes it manually, then records permitted evidence.</p>
+              </div>
+            </div>
+
+            <article class="panel">
+              <div class="content-table-wrap">
+                <table>
+                  <thead><tr><th>Due work</th><th>Named actor</th><th>Account</th><th>When</th><th>Evidence state</th></tr></thead>
+                  <tbody>
+                    <tr>
+                      <td>Content 04 · exact version 3</td>
+                      <td>Priya S. · owner</td>
+                      <td>@nila_yoga_demo</td>
+                      <td class="tabular">18 Jul · 18:30 IST</td>
+                      <td><span class="status status-warning">Not yet published</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </article>
+
+            <div class="content-grid content-grid-main">
+              <article class="panel">
+                <p class="eyebrow">Human checklist</p>
+                <h2>Before recording publication evidence</h2>
+                <ol class="numbered-list">
+                  <li>Open the correct official Instagram account through individual delegated access.</li>
+                  <li>Compare the file and caption checksum with approved version 3.</li>
+                  <li>Publish manually in Instagram. Stop if the account, version, timing, or approval differs.</li>
+                  <li>Record actor, time, approved version, public URL or permitted screenshot, and any discrepancy.</li>
+                </ol>
+              </article>
+              <aside class="panel">
+                <p class="eyebrow">WhatsApp boundary</p>
+                <h2>Replies work the same way</h2>
+                <p>
+                  The product may show a private grounded draft. A human reads the live conversation and sends or edits the message in the official WhatsApp Business app.
+                </p>
+                <p class="quiet-note">A tracked click is not a message, consent, reply, or delivery confirmation.</p>
+              </aside>
+            </div>
+
+            <button class="button button-primary" id="confirmManualBoundary" type="button">
+              I understand publication and messaging are human actions
+            </button>
+            <p class="success-message" id="manualBoundaryRecord" role="status" hidden></p>
+
+            <div class="screen-actions">
+              <button class="button button-secondary" type="button" data-go-view="approval">Back to approval</button>
+              <button class="button button-primary" type="button" data-go-view="leads">Review Leads and consent</button>
+            </div>
+          </section>
+
+          <section class="screen" id="view-leads" data-screen="leads" aria-labelledby="leadsTitle" hidden>
+            <div class="page-heading">
+              <div>
+                <p class="eyebrow">Synthetic Lead ledger</p>
+                <h1 id="leadsTitle">Keep source, consent, human action, and uncertainty separate</h1>
+                <p class="page-intro">
+                  A click, draft, message, booking, and attendance are different facts. Missing evidence stays visible.
+                </p>
+              </div>
+              <span class="status status-neutral">3 fictional Leads</span>
+            </div>
+
+            <article class="panel">
+              <div class="content-table-wrap">
+                <table>
+                  <thead><tr><th>Lead</th><th>Entry evidence</th><th>Response</th><th>State</th><th>Next action</th></tr></thead>
+                  <tbody>
+                    <tr><td>L-101 · Asha Demo</td><td>Hosted form · consent v1.2</td><td class="tabular">8 min · human</td><td><span class="status status-success">Qualified</span></td><td>Booking invited</td></tr>
+                    <tr><td>L-102 · Kabir Demo</td><td>Hosted form · consent v1.2</td><td class="tabular">22 min · human</td><td><span class="status status-neutral" id="lead102Status">Owner review</span></td><td id="lead102Next">Sensitive answer</td></tr>
+                    <tr class="selected-row"><td>L-103 · Mira Demo</td><td>Tracked WhatsApp click only</td><td>Manually reconciled</td><td><span class="status status-warning" id="lead103Status">Uncertain</span></td><td id="lead103Next">Record requested opt-out</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </article>
+
+            <div class="content-grid content-grid-main">
+              <article class="panel">
+                <p class="eyebrow">Selected · L-103</p>
+                <h2>Why this Lead is uncertain</h2>
+                <dl class="detail-list">
+                  <div><dt>Known</dt><dd>The tracked campaign link was opened at 14:04 IST.</dd></div>
+                  <div><dt>Human evidence</dt><dd>Operator recorded an inbound WhatsApp enquiry at 14:09 IST.</dd></div>
+                  <div><dt>Missing</dt><dd>No provider webhook or delivery evidence exists, and the contact identity match is manual.</dd></div>
+                  <div><dt>Consent</dt><dd>Conversation purpose recorded by the human; the click alone is not consent.</dd></div>
+                </dl>
+              </article>
+              <aside class="panel">
+                <p class="eyebrow">Owner control</p>
+                <h2>Opt-out request</h2>
+                <p>Mira asked the operator not to receive further campaign follow-up.</p>
+                <button class="button button-danger" id="openOptoutDialog" type="button">Record and apply opt-out</button>
+                <p class="quiet-note">This changes only synthetic page state. It sends no WhatsApp message.</p>
+              </aside>
+            </div>
+
+            <article class="panel decision-panel" aria-labelledby="ownerControlTitle">
+              <div class="page-heading page-heading-compact">
+                <div>
+                  <p class="eyebrow">Owner control</p>
+                  <h2 id="ownerControlTitle">Take over one Lead or pause the whole campaign</h2>
+                  <p>
+                    Takeover suppresses product guidance for one Lead. Pause suppresses all new campaign drafts,
+                    reminders, and manual-publication due work. Neither control can undo an off-platform human action.
+                  </p>
+                </div>
+                <span class="status status-neutral" id="campaignPauseStatus">Campaign active</span>
+              </div>
+              <div class="button-row">
+                <button class="button button-secondary" id="recordTakeover" type="button">Record owner takeover for L-102</button>
+                <button class="button button-danger" id="pauseCampaign" type="button">Pause campaign guidance</button>
+              </div>
+              <p class="success-message" id="ownerControlRecord" role="status" hidden></p>
+            </article>
+
+            <div class="screen-actions">
+              <button class="button button-secondary" type="button" data-go-view="publication">Back to manual work</button>
+              <button class="button button-primary" type="button" data-go-view="booking">Review booking and attendance</button>
+            </div>
+          </section>
+
+          <section class="screen" id="view-booking" data-screen="booking" aria-labelledby="bookingTitle" hidden>
+            <div class="page-heading">
+              <div>
+                <p class="eyebrow">External booking is authoritative</p>
+                <h1 id="bookingTitle">The studio's booking route owns availability and capacity</h1>
+                <p class="page-intro">
+                  The product records the route and evidence. It does not recreate calendars, class capacity, staff assignment, payments, or conflicts.
+                </p>
+              </div>
+              <span class="status status-neutral">Tracked hosted route</span>
+            </div>
+
+            <div class="notice notice-info">
+              <div>
+                <strong>Prototype route only</strong>
+                <p>The “Open route” control is disabled because this fictional scenario has no booking provider.</p>
+              </div>
+              <button class="button button-secondary" type="button" disabled>Open external route</button>
+            </div>
+
+            <article class="panel">
+              <div class="content-table-wrap">
+                <table>
+                  <thead><tr><th>Lead</th><th>Provider route</th><th>Booking evidence</th><th>Attendance</th><th>Authorized outcome</th></tr></thead>
+                  <tbody>
+                    <tr>
+                      <td>L-101 · Asha Demo</td>
+                      <td>Indiranagar · Beginner Flow</td>
+                      <td class="tabular">BK-DEMO-482 · 19 Jul 08:00</td>
+                      <td><span class="status status-warning" id="attendanceStatus">Awaiting verification</span></td>
+                      <td>
+                        <div class="button-row compact-actions" role="group" aria-label="Record verified outcome for Asha Demo">
+                          <button class="button button-primary" type="button" data-attendance-outcome="attended">Attended</button>
+                          <button class="button button-secondary" type="button" data-attendance-outcome="no_show">No-show</button>
+                          <button class="button button-secondary" type="button" data-attendance-outcome="cancelled">Cancelled</button>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>L-102 · Kabir Demo</td>
+                      <td>Not selected</td>
+                      <td>None</td>
+                      <td><span class="status status-neutral">Not booked</span></td>
+                      <td>Owner review first</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </article>
+
+            <article class="panel evidence-panel">
+              <p class="eyebrow">Attendance evidence record</p>
+              <h2 id="attendanceRecordTitle">No attendance outcome recorded</h2>
+              <p id="attendanceRecordBody">
+                A booking is not attendance. An authorized studio user must verify attended, no-show, or cancelled.
+                Selecting a different supported outcome appends a correction and preserves the prior record.
+              </p>
+            </article>
+
+            <div class="screen-actions">
+              <button class="button button-secondary" type="button" data-go-view="leads">Back to Leads</button>
+              <button class="button button-primary" type="button" data-go-view="learning">Review weekly learning</button>
+            </div>
+          </section>
+
+          <section class="screen" id="view-learning" data-screen="learning" aria-labelledby="learningTitle" hidden>
+            <div class="page-heading">
+              <div>
+                <p class="eyebrow">Synthetic week 1 review</p>
+                <h1 id="learningTitle">See evidence, gaps, and workload before choosing the next test</h1>
+                <p class="page-intro">
+                  These numbers are invented for interface testing. The real product must show denominators, missing data, and corrections.
+                </p>
+              </div>
+              <span class="status status-neutral">Evidence through 21 Jul</span>
+            </div>
+
+            <div class="metric-grid">
+              <article class="metric-card"><p class="metric-label">Captured Leads</p><p class="metric-number tabular">12</p><p class="metric-note">10 hosted form · 2 manual WhatsApp</p></article>
+              <article class="metric-card"><p class="metric-label">Qualified</p><p class="metric-number tabular">7 / 12</p><p class="metric-note">58%, with 1 owner review pending</p></article>
+              <article class="metric-card"><p class="metric-label">Booked</p><p class="metric-number tabular">4 / 7</p><p class="metric-note">Tracked hosted route</p></article>
+              <article class="metric-card"><p class="metric-label">Verified attended</p><p class="metric-number tabular" id="attendedMetric">2 / 4</p><p class="metric-note" id="attendedMetricNote">1 awaiting verification · 1 no-show</p></article>
+            </div>
+
+            <div class="content-grid content-grid-main">
+              <article class="panel">
+                <p class="eyebrow">What the evidence says</p>
+                <h2>Response is fast enough; booking handoff loses context</h2>
+                <ul class="evidence-list">
+                  <li><strong>Observed:</strong> Median first human response is 11 minutes during the service window.</li>
+                  <li><strong>Observed:</strong> Three qualified Leads opened the booking route but only one retained the campaign reference.</li>
+                  <li><strong>Unknown:</strong> Two WhatsApp conversations were manually matched and cannot be provider-confirmed.</li>
+                  <li><strong>Workload:</strong> Owner 41 minutes · operator 96 minutes · 2 manual gaps.</li>
+                  <li><strong>Trust:</strong> No wrong publication; one opt-out was applied after human reconciliation.</li>
+                </ul>
+              </article>
+              <aside class="panel">
+                <p class="eyebrow">Proposed single-variable experiment</p>
+                <h2>Add the campaign reference to the booking handoff</h2>
+                <p>
+                  Keep the offer, content, audience, and response playbook unchanged. Change only the tracked handoff instruction and compare reference completeness next week.
+                </p>
+                <p class="quiet-note">Expected effect: improve source evidence. It does not claim more bookings or attendance.</p>
+              </aside>
+            </div>
+
+            <article class="panel decision-panel">
+              <h2>Owner decision</h2>
+              <p>Choosing an option records a draft decision only. It does not activate another campaign.</p>
+              <div class="button-row" role="group" aria-label="Experiment decision">
+                <button class="button button-primary experiment-choice" type="button" data-decision="Accepted">Accept experiment</button>
+                <button class="button button-secondary experiment-choice" type="button" data-decision="Rejected">Reject</button>
+                <button class="button button-secondary experiment-choice" type="button" data-decision="Deferred">Defer</button>
+              </div>
+              <p class="success-message" id="experimentRecord" role="status" hidden></p>
+            </article>
+
+            <div class="completion-panel" id="completionPanel" hidden>
+              <p class="eyebrow">Prototype task set complete</p>
+              <h2>Now ask the owner what felt unclear, risky, or missing</h2>
+              <p>
+                Completion is not a usability pass. Record every wrong turn, prompt, objection, expectation mismatch, and trust concern in the coded test record.
+              </p>
+            </div>
+
+            <div class="screen-actions">
+              <button class="button button-secondary" type="button" data-go-view="booking">Back to booking</button>
+              <button class="button button-primary" type="button" data-go-view="overview">Return to task list</button>
+            </div>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <dialog class="dialog" id="optoutDialog" aria-labelledby="optoutDialogTitle" aria-describedby="optoutDialogDescription">
+      <form method="dialog">
+        <p class="eyebrow">Synthetic Lead L-103</p>
+        <h2 id="optoutDialogTitle">Record the opt-out and suppress future follow-up?</h2>
+        <p id="optoutDialogDescription">
+          This will mark the synthetic Lead as opted out and suppress later product drafts and reminders. A human must separately stop any off-platform action.
+        </p>
+        <div class="dialog-callout">
+          <strong>This does not send a reply.</strong>
+          <span>It changes only this local prototype state.</span>
+        </div>
+        <div class="button-row dialog-actions">
+          <button class="button button-secondary" value="cancel">Cancel</button>
+          <button class="button button-danger" id="confirmOptout" value="confirm">Confirm opt-out</button>
+        </div>
+      </form>
+    </dialog>
+  </body>
+</html>

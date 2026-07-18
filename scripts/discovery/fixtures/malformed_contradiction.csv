@@ -1,0 +1,3 @@
+interview_code,studio_code,interview_sequence,eligibility_result,eligibility_reason_category,denominator_exclusion_reason,pain_1_result,pain_2_result,four_week_baseline_status,willingness_stage,concrete_next_step_category,counter_evidence_summary,new_material_finding,contradiction_category,contradiction_severity,contradiction_disposition_status,partner_candidate,prototype_test_candidate,manual_workflow_candidate
+TRN-INT-001,TRN-STU-001,1,ELIGIBLE,,,YES,YES,USABLE,CONCRETE_NEXT_STEP,READINESS_REVIEW,,NO,PRIVACY,HIGH,,YES,YES,YES
+

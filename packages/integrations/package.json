@@ -1,0 +1,19 @@
+{
+  "name": "@novussync/integrations",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "lint": "eslint src --max-warnings=0",
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "node --test src/*.test.ts"
+  },
+  "dependencies": {
+    "@novussync/application": "workspace:*",
+    "@novussync/config": "workspace:*",
+    "@novussync/domain": "workspace:*",
+    "@supabase/supabase-js": "2.110.7"
+  }
+}
