@@ -43,3 +43,12 @@ export type {
   FactReviewPersistenceErrorCode,
   FactReviewRepository,
 } from "./fact-review-repository.js";
+
+export {
+  ApprovedContextPersistenceError,
+  createApprovedContextRepository,
+} from "./approved-context-repository.js";
+export type {
+  ApprovedContextPersistenceErrorCode,
+  ApprovedContextPersistenceRepository,
+} from "./approved-context-repository.js";

@@ -1129,6 +1129,17 @@ export const approvedFactVersions = pgTable(
       .references(() => actors.id, { onDelete: "restrict" }),
     verifiedByRole: text("verified_by_role", { enum: ["owner"] }).notNull(),
     verifiedAt: timestamp("verified_at", { withTimezone: true }).notNull(),
+    governanceStatus: text("governance_status", {
+      enum: ["available", "restricted", "disputed"],
+    })
+      .default("available")
+      .notNull(),
+    allowedUseCases: jsonb("allowed_use_cases")
+      .$type<("campaign_planning" | "concierge_response")[]>()
+      .default(sql`'["campaign_planning", "concierge_response"]'::jsonb`)
+      .notNull(),
+    expiresAt: timestamp("expires_at", { withTimezone: true }),
+    governanceReasonCode: text("governance_reason_code"),
     recordedAt: timestamp("recorded_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (table) => [
@@ -1209,6 +1220,26 @@ export const approvedFactVersions = pgTable(
         or ${table.conflictReasonCode} ~ '^[A-Z][A-Z0-9_-]{0,63}$'`,
     ),
     check("approved_fact_version_owner_fixed", sql`${table.verifiedByRole} = 'owner'`),
+    check(
+      "approved_fact_version_governance_status_allowed",
+      sql`${table.governanceStatus} in ('available', 'restricted', 'disputed')`,
+    ),
+    check(
+      "approved_fact_version_allowed_use_cases",
+      sql`jsonb_typeof(${table.allowedUseCases}) = 'array'
+        and jsonb_array_length(${table.allowedUseCases}) > 0
+        and ${table.allowedUseCases} <@ '["campaign_planning", "concierge_response"]'::jsonb`,
+    ),
+    check(
+      "approved_fact_version_governance_reason_shape",
+      sql`(${table.governanceStatus} = 'available' and ${table.governanceReasonCode} is null)
+        or (${table.governanceStatus} in ('restricted', 'disputed')
+          and ${table.governanceReasonCode} ~ '^[A-Z][A-Z0-9_-]{0,63}$')`,
+    ),
+    check(
+      "approved_fact_version_expiry_after_verification",
+      sql`${table.expiresAt} is null or ${table.expiresAt} > ${table.verifiedAt}`,
+    ),
     pgPolicy("approved_fact_version_tenant_select", {
       to: novussyncAppRole,
       for: "select",
@@ -1330,6 +1361,65 @@ export const factReviewDecisions = pgTable(
       using: workspaceScope(table.organizationId, table.workspaceId),
     }),
     pgPolicy("fact_review_decision_tenant_insert", {
+      to: novussyncAppRole,
+      for: "insert",
+      withCheck: workspaceScope(table.organizationId, table.workspaceId),
+    }),
+  ],
+);
+
+export const verifiedContextSnapshots = pgTable(
+  "verified_context_snapshot",
+  {
+    organizationId: uuid("organization_id").notNull(),
+    workspaceId: uuid("workspace_id").notNull(),
+    snapshotId: text("snapshot_id").notNull(),
+    schemaVersion: integer("schema_version").notNull(),
+    profileId: text("profile_id").notNull(),
+    useCase: text("use_case", {
+      enum: ["campaign_planning", "concierge_response"],
+    }).notNull(),
+    asOf: timestamp("as_of", { withTimezone: true }).notNull(),
+    items: jsonb("items").$type<unknown[]>().notNull(),
+    createdByActorId: uuid("created_by_actor_id")
+      .notNull()
+      .references(() => actors.id, { onDelete: "restrict" }),
+    requestId: text("request_id").notNull(),
+    recordedAt: timestamp("recorded_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    primaryKey({
+      name: "verified_context_snapshot_primary",
+      columns: [table.organizationId, table.workspaceId, table.snapshotId],
+    }),
+    foreignKey({
+      name: "verified_context_snapshot_workspace_fk",
+      columns: [table.organizationId, table.workspaceId],
+      foreignColumns: [workspaces.organizationId, workspaces.id],
+    }).onDelete("restrict"),
+    index("verified_context_snapshot_profile_time_idx").on(
+      table.organizationId,
+      table.workspaceId,
+      table.profileId,
+      table.asOf,
+    ),
+    check(
+      "verified_context_snapshot_id_format",
+      sql`${table.snapshotId} ~ '^verified-context:sha256:[a-f0-9]{64}$'`,
+    ),
+    check("verified_context_snapshot_schema_version", sql`${table.schemaVersion} = 1`),
+    check(
+      "verified_context_snapshot_use_case_allowed",
+      sql`${table.useCase} in ('campaign_planning', 'concierge_response')`,
+    ),
+    check("verified_context_snapshot_items_array", sql`jsonb_typeof(${table.items}) = 'array'`),
+    check("verified_context_snapshot_request_present", sql`length(${table.requestId}) > 0`),
+    pgPolicy("verified_context_snapshot_tenant_select", {
+      to: novussyncAppRole,
+      for: "select",
+      using: workspaceScope(table.organizationId, table.workspaceId),
+    }),
+    pgPolicy("verified_context_snapshot_tenant_insert", {
       to: novussyncAppRole,
       for: "insert",
       withCheck: workspaceScope(table.organizationId, table.workspaceId),
