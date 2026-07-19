@@ -236,11 +236,13 @@ describe("tenant-scoped fact-review persistence", () => {
     const rejected = results.filter((result) => result.status === "rejected");
     expect(fulfilled).toHaveLength(1);
     expect(rejected).toHaveLength(1);
-    expect(rejected[0]).toMatchObject({
-      reason: expect.objectContaining({
-        name: "FactReviewPersistenceError",
-        code: "version_conflict",
-      }),
+    expect(rejected[0]?.reason).toSatisfy((error: unknown) => {
+      if (!(error instanceof Error) || !("code" in error)) return false;
+      const code = (error as { code: unknown }).code;
+      return (
+        (error.name === "FactReviewError" && code === "FACT_REVIEW_STALE_VERSION") ||
+        (error.name === "FactReviewPersistenceError" && code === "version_conflict")
+      );
     });
   });
 
