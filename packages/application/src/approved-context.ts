@@ -1,42 +1,54 @@
 import { createHash } from "node:crypto";
 
 import {
+  APPROVED_CONTEXT_USE_CASES,
   projectApprovedContext,
   type ApprovedContextFactRecord,
   type ApprovedContextItem,
   type ApprovedContextUseCase,
+  type CommandActor,
+  type TenantContext,
 } from "@novussync/domain";
 
 export interface ApprovedContextQueryContext {
-  readonly tenantId: string;
-  readonly workspaceId: string;
-  readonly actor: { readonly actorId: string; readonly role: "owner" | "operator" };
+  readonly tenant: TenantContext;
+  readonly actor: CommandActor;
   readonly sessionExpiresAt: string;
   readonly requestId: string;
 }
 
 export interface ApprovedContextQuery {
-  readonly tenantId: string;
-  readonly workspaceId: string;
+  readonly tenant: TenantContext;
   readonly profileId: string;
   readonly useCase: ApprovedContextUseCase;
   readonly fieldKeys: readonly string[];
 }
 
+export interface ApprovedContextRepositoryContext {
+  readonly tenant: TenantContext;
+  readonly actorId: string;
+  readonly requestId: string;
+}
+
 export interface ApprovedContextRepository {
-  loadApprovedContextRecords(input: {
-    readonly tenantId: string;
-    readonly workspaceId: string;
-    readonly profileId: string;
-    readonly useCase: ApprovedContextUseCase;
-    readonly fieldKeys: readonly string[];
-  }): Promise<readonly ApprovedContextFactRecord[]>;
+  loadApprovedContextRecords(
+    context: ApprovedContextRepositoryContext,
+    input: {
+      readonly profileId: string;
+      readonly useCase: ApprovedContextUseCase;
+      readonly fieldKeys: readonly string[];
+    },
+  ): Promise<readonly ApprovedContextFactRecord[]>;
+  persistApprovedContextSnapshot(
+    context: ApprovedContextRepositoryContext,
+    snapshot: ApprovedContextSnapshot,
+  ): Promise<void>;
 }
 
 export interface ApprovedContextSnapshot {
   readonly snapshotId: `verified-context:sha256:${string}`;
   readonly schemaVersion: 1;
-  readonly tenantId: string;
+  readonly organizationId: string;
   readonly workspaceId: string;
   readonly profileId: string;
   readonly useCase: ApprovedContextUseCase;
@@ -50,10 +62,16 @@ export interface ApprovedContextQueryDependencies {
 }
 
 export class ApprovedContextQueryError extends Error {
-  public readonly code: "APPROVED_CONTEXT_UNAUTHORIZED" | "APPROVED_CONTEXT_SESSION_EXPIRED";
+  public readonly code:
+    | "APPROVED_CONTEXT_UNAUTHORIZED"
+    | "APPROVED_CONTEXT_SESSION_EXPIRED"
+    | "APPROVED_CONTEXT_INVALID_QUERY";
 
   public constructor(
-    code: "APPROVED_CONTEXT_UNAUTHORIZED" | "APPROVED_CONTEXT_SESSION_EXPIRED",
+    code:
+      | "APPROVED_CONTEXT_UNAUTHORIZED"
+      | "APPROVED_CONTEXT_SESSION_EXPIRED"
+      | "APPROVED_CONTEXT_INVALID_QUERY",
     message: string,
   ) {
     super(message);
@@ -82,17 +100,32 @@ function deepFreeze<T>(value: T): Readonly<T> {
   return value;
 }
 
+function actorShapeIsAuthorized(actor: CommandActor): boolean {
+  if (actor.actorType === "system") {
+    return false;
+  }
+  if (actor.role === "system" || actor.accessKind === "system") return false;
+  if (actor.role === "internal_operator") {
+    return actor.accessKind === "support_grant" && Boolean(actor.supportGrantId?.trim());
+  }
+  return (
+    (actor.role === "owner" || actor.role === "staff") &&
+    actor.accessKind === "membership" &&
+    !actor.supportGrantId
+  );
+}
+
 function authorize(
   context: ApprovedContextQueryContext,
   query: ApprovedContextQuery,
   now: Date,
 ): void {
   if (
-    context.tenantId !== query.tenantId ||
-    context.workspaceId !== query.workspaceId ||
-    context.actor.actorId.trim().length === 0 ||
+    context.tenant.organizationId !== query.tenant.organizationId ||
+    context.tenant.workspaceId !== query.tenant.workspaceId ||
+    context.actor.id.trim().length === 0 ||
     context.requestId.trim().length === 0 ||
-    !["owner", "operator"].includes(context.actor.role)
+    !actorShapeIsAuthorized(context.actor)
   ) {
     throw new ApprovedContextQueryError(
       "APPROVED_CONTEXT_UNAUTHORIZED",
@@ -108,6 +141,21 @@ function authorize(
   }
 }
 
+function validateQuery(query: ApprovedContextQuery): void {
+  if (
+    query.profileId.trim().length === 0 ||
+    query.fieldKeys.length === 0 ||
+    query.fieldKeys.some((fieldKey) => fieldKey.trim().length === 0) ||
+    new Set(query.fieldKeys).size !== query.fieldKeys.length ||
+    !APPROVED_CONTEXT_USE_CASES.includes(query.useCase)
+  ) {
+    throw new ApprovedContextQueryError(
+      "APPROVED_CONTEXT_INVALID_QUERY",
+      "Approved context requires a profile, supported use case, and unique field keys.",
+    );
+  }
+}
+
 export async function queryApprovedContext(
   context: ApprovedContextQueryContext,
   query: ApprovedContextQuery,
@@ -115,15 +163,20 @@ export async function queryApprovedContext(
 ): Promise<ApprovedContextSnapshot> {
   const now = (dependencies.now ?? (() => new Date()))();
   authorize(context, query, now);
-  const records = await dependencies.repository.loadApprovedContextRecords({
-    tenantId: query.tenantId,
-    workspaceId: query.workspaceId,
+  validateQuery(query);
+
+  const repositoryContext: ApprovedContextRepositoryContext = {
+    tenant: context.tenant,
+    actorId: context.actor.id,
+    requestId: context.requestId,
+  };
+  const records = await dependencies.repository.loadApprovedContextRecords(repositoryContext, {
     profileId: query.profileId,
     useCase: query.useCase,
     fieldKeys: [...query.fieldKeys],
   });
   const projection = projectApprovedContext({
-    tenantId: query.tenantId,
+    tenantId: query.tenant.workspaceId,
     profileId: query.profileId,
     useCase: query.useCase,
     fieldKeys: query.fieldKeys,
@@ -132,8 +185,8 @@ export async function queryApprovedContext(
   });
   const snapshotBody = {
     schemaVersion: 1 as const,
-    tenantId: projection.tenantId,
-    workspaceId: query.workspaceId,
+    organizationId: query.tenant.organizationId,
+    workspaceId: query.tenant.workspaceId,
     profileId: projection.profileId,
     useCase: projection.useCase,
     asOf: projection.asOf,
@@ -142,9 +195,11 @@ export async function queryApprovedContext(
   const digest = createHash("sha256")
     .update(JSON.stringify(canonicalize(snapshotBody)))
     .digest("hex");
-
-  return deepFreeze({
-    snapshotId: `verified-context:sha256:${digest}`,
+  const snapshot = deepFreeze({
+    snapshotId: `verified-context:sha256:${digest}` as const,
     ...snapshotBody,
   });
+
+  await dependencies.repository.persistApprovedContextSnapshot(repositoryContext, snapshot);
+  return snapshot;
 }
