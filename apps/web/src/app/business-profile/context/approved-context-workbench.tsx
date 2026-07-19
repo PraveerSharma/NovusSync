@@ -121,7 +121,7 @@ function UnavailableWorkspace({
             ? "NovusSync needs an organization, workspace, and profile selection before it can request facts. Membership is checked again before any database read."
             : "No unverified fallback was shown. Return to the workspace and try again after the authenticated data path is available."}
         </p>
-        <Link href="/dashboard">
+        <Link href="/workspaces">
           Return to workspace
           <ArrowIcon />
         </Link>

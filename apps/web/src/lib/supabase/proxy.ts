@@ -9,6 +9,8 @@ function isProtectedWorkspacePath(pathname: string): boolean {
   return (
     pathname === "/dashboard" ||
     pathname.startsWith("/dashboard/") ||
+    pathname === "/workspaces" ||
+    pathname.startsWith("/workspaces/") ||
     pathname === "/business-profile" ||
     pathname.startsWith("/business-profile/")
   );

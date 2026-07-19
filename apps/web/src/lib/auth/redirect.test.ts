@@ -14,6 +14,10 @@ test("allows the protected business profile destination", () => {
   assert.equal(safeAuthDestination("/business-profile"), "/business-profile");
 });
 
+test("allows the protected workspace directory destination", () => {
+  assert.equal(safeAuthDestination("/workspaces"), "/workspaces");
+});
+
 test("rejects external, protocol-relative, backslash, and unknown destinations", () => {
   for (const destination of [
     "https://example.com/dashboard",

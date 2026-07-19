@@ -16,12 +16,20 @@ const scope = Object.freeze({
   profileId: "33333333-3333-4333-8333-333333333333",
 });
 
-test("parses only one complete UUID-scoped workspace request", () => {
+test("parses only one complete scoped workspace request", () => {
   assert.deepEqual(parseApprovedContextScope(scope), scope);
   assert.equal(parseApprovedContextScope({ ...scope, workspaceId: "not-a-uuid" }), null);
   assert.equal(parseApprovedContextScope({ ...scope, profileId: [scope.profileId] }), null);
   assert.equal(parseApprovedContextUiUseCase("concierge"), "concierge");
   assert.equal(parseApprovedContextUiUseCase("unsupported"), "campaign");
+});
+
+test("accepts a bounded text profile identifier while rejecting unsafe values", () => {
+  assert.deepEqual(parseApprovedContextScope({ ...scope, profileId: "northstar-yoga-primary" }), {
+    ...scope,
+    profileId: "northstar-yoga-primary",
+  });
+  assert.equal(parseApprovedContextScope({ ...scope, profileId: "../other-profile" }), null);
 });
 
 test("never serializes blocked synthetic values into page data", () => {

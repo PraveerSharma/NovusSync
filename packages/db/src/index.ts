@@ -52,3 +52,12 @@ export type {
   ApprovedContextPersistenceErrorCode,
   ApprovedContextPersistenceRepository,
 } from "./approved-context-repository.ts";
+
+export {
+  WorkspaceDirectoryPersistenceError,
+  createWorkspaceDirectoryRepository,
+} from "./workspace-directory-repository.ts";
+export type {
+  WorkspaceDirectoryPersistenceErrorCode,
+  WorkspaceDirectoryRepository,
+} from "./workspace-directory-repository.ts";

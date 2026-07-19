@@ -9,7 +9,7 @@
     "start": "next start",
     "lint": "eslint src --max-warnings=0",
     "typecheck": "tsc -p tsconfig.json",
-    "test": "node --test src/lib/auth/*.test.ts src/lib/approved-context/*.test.ts"
+    "test": "node --test src/lib/auth/*.test.ts src/lib/approved-context/*.test.ts src/lib/workspaces/*.test.ts"
   },
   "dependencies": {
     "@fontsource-variable/manrope": "5.2.8",
