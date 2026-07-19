@@ -79,6 +79,7 @@ describe("tenant-scoped approved-context persistence", () => {
     });
     await insertGovernedVersion(booking, {
       allowedUseCases: ["concierge_response"],
+      expiresAt: new Date("2099-12-31T23:59:59.000Z"),
     });
     await insertGovernedVersion(therapy, {
       governanceStatus: "disputed",
