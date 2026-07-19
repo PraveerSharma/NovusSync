@@ -8,6 +8,7 @@ export type WorkspaceDirectoryProfileView = Readonly<{
   approvedFactCount: number;
   lastVerifiedAt: string | null;
   contextHref: string;
+  freshnessHref: string;
 }>;
 
 export type WorkspaceDirectoryWorkspaceView = Readonly<{
@@ -60,6 +61,11 @@ export function toWorkspaceDirectoryPageData(
                 approvedFactCount: profile.approvedFactCount,
                 lastVerifiedAt: profile.lastVerifiedAt,
                 contextHref: buildApprovedContextHref({
+                  organizationId: workspace.organizationId,
+                  workspaceId: workspace.workspaceId,
+                  profileId: profile.profileId,
+                }),
+                freshnessHref: buildFactReverificationHref({
                   organizationId: workspace.organizationId,
                   workspaceId: workspace.workspaceId,
                   profileId: profile.profileId,
@@ -124,6 +130,15 @@ export function buildApprovedContextHref(scope: {
     useCase: "campaign",
   });
   return "/business-profile/context?" + parameters.toString();
+}
+
+export function buildFactReverificationHref(scope: {
+  organizationId: string;
+  workspaceId: string;
+  profileId: string;
+}): string {
+  const parameters = new URLSearchParams(scope);
+  return "/business-profile/reverification?" + parameters.toString();
 }
 
 function humanizePlaybook(playbookId: string): string {

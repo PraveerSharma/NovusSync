@@ -6,8 +6,14 @@ import type {
   ApprovedContextRepository,
   ApprovedContextRepositoryContext,
   ApprovedContextSnapshot,
+  FactFreshnessReadRepositoryPort,
 } from "@novussync/application";
-import type { ApprovedContextFactRecord, ApprovedFactVersion, FactValue } from "@novussync/domain";
+import {
+  resolveFactFreshness,
+  type ApprovedContextFactRecord,
+  type ApprovedFactVersion,
+  type FactValue,
+} from "@novussync/domain";
 
 import type { Database } from "./client.ts";
 import { approvedFactVersions, auditEvents, verifiedContextSnapshots } from "./schema.ts";
@@ -31,7 +37,8 @@ export class ApprovedContextPersistenceError extends Error {
   }
 }
 
-export type ApprovedContextPersistenceRepository = ApprovedContextRepository;
+export type ApprovedContextPersistenceRepository = ApprovedContextRepository &
+  FactFreshnessReadRepositoryPort;
 
 type FactVersionRow = typeof approvedFactVersions.$inferSelect;
 
@@ -39,6 +46,35 @@ export function createApprovedContextRepository(
   database: Database,
 ): ApprovedContextPersistenceRepository {
   return Object.freeze({
+    async listCurrentFacts(context: ApprovedContextRepositoryContext, profileId: string) {
+      assertContext(context);
+      return withTenantTransaction(database, context.tenant, async (transaction) => {
+        const rows = await transaction
+          .select()
+          .from(approvedFactVersions)
+          .where(
+            and(
+              eq(approvedFactVersions.organizationId, context.tenant.organizationId),
+              eq(approvedFactVersions.workspaceId, context.tenant.workspaceId),
+              eq(approvedFactVersions.profileId, profileId),
+            ),
+          )
+          .orderBy(approvedFactVersions.fieldKey, desc(approvedFactVersions.version));
+        const currentVersionByField = new Map<string, number>();
+        for (const row of rows) {
+          currentVersionByField.set(
+            row.fieldKey,
+            Math.max(currentVersionByField.get(row.fieldKey) ?? 0, row.version),
+          );
+        }
+        return Object.freeze(
+          rows
+            .filter((row) => row.version === currentVersionByField.get(row.fieldKey))
+            .map((row) => mapRecord(row, true)),
+        );
+      });
+    },
+
     async loadApprovedContextRecords(
       context: ApprovedContextRepositoryContext,
       input: Parameters<ApprovedContextRepository["loadApprovedContextRecords"]>[1],
@@ -147,6 +183,10 @@ export function createApprovedContextRepository(
 }
 
 function mapRecord(row: FactVersionRow, isCurrent: boolean): ApprovedContextFactRecord {
+  const effectiveExpiry =
+    row.expiresAt?.toISOString() ??
+    resolveFactFreshness(row.fieldKey, row.verifiedAt.toISOString())?.expiresAt ??
+    null;
   const conflictResolution =
     row.conflictKind && row.conflictReasonCode
       ? Object.freeze({ kind: row.conflictKind, reasonCode: row.conflictReasonCode })
@@ -180,7 +220,7 @@ function mapRecord(row: FactVersionRow, isCurrent: boolean): ApprovedContextFact
   return Object.freeze({
     fact,
     isCurrent,
-    expiresAt: row.expiresAt?.toISOString() ?? null,
+    expiresAt: effectiveExpiry,
     governance: Object.freeze({
       status: row.governanceStatus,
       allowedUseCases: Object.freeze([...row.allowedUseCases]),

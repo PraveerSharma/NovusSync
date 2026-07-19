@@ -116,14 +116,24 @@ export function WorkspaceDirectory({ data }: WorkspaceDirectoryProps) {
                             </div>
                           </dl>
 
-                          <a
-                            className={styles.contextLink}
-                            href={profile.contextHref}
-                            aria-label={"Open approved context for " + profile.displayName}
-                          >
-                            <span>Open approved context</span>
-                            <span aria-hidden="true">↗</span>
-                          </a>
+                          <div className={styles.profileActions}>
+                            <a
+                              className={styles.contextLink}
+                              href={profile.contextHref}
+                              aria-label={"Open approved context for " + profile.displayName}
+                            >
+                              <span>Approved context</span>
+                              <span aria-hidden="true">↗</span>
+                            </a>
+                            <a
+                              className={styles.freshnessLink}
+                              href={profile.freshnessHref}
+                              aria-label={"Review fact freshness for " + profile.displayName}
+                            >
+                              <span>Fact freshness</span>
+                              <span aria-hidden="true">→</span>
+                            </a>
+                          </div>
                         </div>
                       ))}
                     </div>

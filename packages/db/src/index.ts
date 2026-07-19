@@ -61,3 +61,12 @@ export type {
   WorkspaceDirectoryPersistenceErrorCode,
   WorkspaceDirectoryRepository,
 } from "./workspace-directory-repository.ts";
+
+export {
+  createFactReverificationRepository,
+  FactReverificationPersistenceError,
+} from "./fact-reverification-repository.ts";
+export type {
+  FactReverificationPersistenceErrorCode,
+  FactReverificationRepository,
+} from "./fact-reverification-repository.ts";

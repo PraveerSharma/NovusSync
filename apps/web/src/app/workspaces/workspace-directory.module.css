@@ -322,6 +322,29 @@
     color 160ms ease-out;
 }
 
+.profileActions {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.freshnessLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-width: 12.5rem;
+  border-bottom: 1px solid var(--ink);
+  color: var(--ink);
+  padding: 0.55rem 0.15rem;
+  text-decoration: none;
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.freshnessLink:hover {
+  color: var(--accent);
+}
+
 .contextLink:hover {
   transform: translateY(-2px);
   background: var(--ink);
@@ -329,6 +352,7 @@
 }
 
 .contextLink:focus-visible,
+.freshnessLink:focus-visible,
 .dashboardLink:focus-visible,
 .brand:focus-visible,
 .profileEmpty a:focus-visible,
