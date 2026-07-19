@@ -7,7 +7,10 @@ import { SourceProposalPanel } from "./source-proposal-panel";
 export function BusinessProfileTools() {
   const pathname = usePathname();
 
-  if (pathname.startsWith("/business-profile/review")) {
+  if (
+    pathname.startsWith("/business-profile/review") ||
+    pathname.startsWith("/business-profile/context")
+  ) {
     return null;
   }
 
