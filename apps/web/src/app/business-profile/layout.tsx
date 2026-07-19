@@ -1,12 +1,12 @@
 import type { ReactNode } from "react";
 
-import { SourceProposalPanel } from "./source-proposal-panel";
+import { BusinessProfileTools } from "./business-profile-tools";
 
 export default function BusinessProfileLayout({ children }: Readonly<{ children: ReactNode }>) {
   return (
     <>
       {children}
-      <SourceProposalPanel />
+      <BusinessProfileTools />
     </>
   );
 }

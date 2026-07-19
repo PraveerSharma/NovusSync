@@ -77,3 +77,4 @@ export function createCommandEnvelope<TPayload = Record<string, unknown>>(
 export * from "./business-profile-service.ts";
 export * from "./source-proposal-service.ts";
 export * from "./source-proposal-persistence.ts";
+export * from "./fact-review.ts";
