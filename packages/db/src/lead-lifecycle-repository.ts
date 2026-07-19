@@ -16,9 +16,9 @@ import {
   type LeadLifecycleStage,
 } from "@novussync/domain";
 
-import type { Database } from "./client.js";
-import { auditEvents, leadLifecycles, leadLifecycleTransitions } from "./schema.js";
-import { withTenantTransaction, type TenantContext } from "./tenant-transaction.js";
+import type { Database } from "./client.ts";
+import { auditEvents, leadLifecycles, leadLifecycleTransitions } from "./schema.ts";
+import { withTenantTransaction, type TenantContext } from "./tenant-transaction.ts";
 
 export type LeadLifecycleRepository = LeadLifecycleRepositoryPort;
 

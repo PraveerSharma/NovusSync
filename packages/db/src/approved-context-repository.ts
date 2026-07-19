@@ -9,9 +9,9 @@ import type {
 } from "@novussync/application";
 import type { ApprovedContextFactRecord, ApprovedFactVersion, FactValue } from "@novussync/domain";
 
-import type { Database } from "./client.js";
-import { approvedFactVersions, auditEvents, verifiedContextSnapshots } from "./schema.js";
-import { withTenantTransaction } from "./tenant-transaction.js";
+import type { Database } from "./client.ts";
+import { approvedFactVersions, auditEvents, verifiedContextSnapshots } from "./schema.ts";
+import { withTenantTransaction } from "./tenant-transaction.ts";
 
 export const APPROVED_CONTEXT_PERSISTENCE_ERROR_CODES = [
   "invalid_context",

@@ -9,13 +9,16 @@
     "start": "next start",
     "lint": "eslint src --max-warnings=0",
     "typecheck": "tsc -p tsconfig.json",
-    "test": "node --test src/lib/auth/*.test.ts"
+    "test": "node --test src/lib/auth/*.test.ts src/lib/approved-context/*.test.ts"
   },
   "dependencies": {
     "@fontsource-variable/manrope": "5.2.8",
     "@fontsource-variable/newsreader": "5.2.10",
+    "@novussync/application": "workspace:*",
     "@novussync/config": "workspace:*",
+    "@novussync/db": "workspace:*",
     "@novussync/domain": "workspace:*",
+    "@novussync/integrations": "workspace:*",
     "@novussync/ui": "workspace:*",
     "@novussync/vertical-yoga": "workspace:*",
     "@supabase/ssr": "0.12.3",

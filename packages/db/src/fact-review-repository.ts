@@ -15,7 +15,7 @@ import type {
   ReviewableFactCandidate,
 } from "@novussync/domain";
 
-import type { Database } from "./client.js";
+import type { Database } from "./client.ts";
 import {
   approvedFactVersions,
   auditEvents,
@@ -23,8 +23,8 @@ import {
   factReviewDecisions,
   idempotencyRecords,
   sourceCaptures,
-} from "./schema.js";
-import { withTenantTransaction } from "./tenant-transaction.js";
+} from "./schema.ts";
+import { withTenantTransaction } from "./tenant-transaction.ts";
 
 export const FACT_REVIEW_PERSISTENCE_ERROR_CODES = [
   "not_found",

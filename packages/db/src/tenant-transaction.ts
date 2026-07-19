@@ -1,6 +1,6 @@
 import { sql } from "drizzle-orm";
 
-import type { Database } from "./client.js";
+import type { Database } from "./client.ts";
 
 export interface TenantContext {
   readonly organizationId: string;
