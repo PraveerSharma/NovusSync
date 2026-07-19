@@ -108,35 +108,33 @@ CREATE POLICY "fact_review_decision_tenant_select" ON "fact_review_decision" AS 
 CREATE POLICY "fact_review_decision_tenant_insert" ON "fact_review_decision" AS PERMISSIVE FOR INSERT TO "novussync_app" WITH CHECK (
   "fact_review_decision"."organization_id" = nullif((select current_setting('app.organization_id', true)), '')::uuid
   and "fact_review_decision"."workspace_id" = nullif((select current_setting('app.workspace_id', true)), '')::uuid
-);+--> statement-breakpoint
-+ALTER TABLE "approved_fact_version" FORCE ROW LEVEL SECURITY;--> statement-breakpoint
-+ALTER TABLE "fact_review_decision" FORCE ROW LEVEL SECURITY;--> statement-breakpoint
-+GRANT SELECT, INSERT ON TABLE
-+  "approved_fact_version",
-+  "fact_review_decision"
-+TO "novussync_app";--> statement-breakpoint
-+REVOKE UPDATE, DELETE, TRUNCATE ON TABLE
-+  "approved_fact_version",
-+  "fact_review_decision"
-+FROM "novussync_app";--> statement-breakpoint
-+CREATE OR REPLACE FUNCTION app_private.reject_fact_review_record_mutation()
-+RETURNS trigger
-+LANGUAGE plpgsql
-+SECURITY INVOKER
-+SET search_path = pg_catalog, public, app_private
-+AS $$
-+BEGIN
-+  RAISE EXCEPTION USING
-+    ERRCODE = '55000',
-+    MESSAGE = 'fact review records are append-only';
-+END;
-+$$;--> statement-breakpoint
-+REVOKE ALL ON FUNCTION app_private.reject_fact_review_record_mutation() FROM PUBLIC;--> statement-breakpoint
-+CREATE TRIGGER approved_fact_version_reject_mutation
-+BEFORE UPDATE OR DELETE ON "approved_fact_version"
-+FOR EACH ROW EXECUTE FUNCTION app_private.reject_fact_review_record_mutation();--> statement-breakpoint
-+CREATE TRIGGER fact_review_decision_reject_mutation
-+BEFORE UPDATE OR DELETE ON "fact_review_decision"
-+FOR EACH ROW EXECUTE FUNCTION app_private.reject_fact_review_record_mutation();
-+SQL
-+perl -0pi -e 's/^\+//mg' packages/db/drizzle/0010_fact_review_persistence.sql
+);--> statement-breakpoint
+ALTER TABLE "approved_fact_version" FORCE ROW LEVEL SECURITY;--> statement-breakpoint
+ALTER TABLE "fact_review_decision" FORCE ROW LEVEL SECURITY;--> statement-breakpoint
+GRANT SELECT, INSERT ON TABLE
+  "approved_fact_version",
+  "fact_review_decision"
+TO "novussync_app";--> statement-breakpoint
+REVOKE UPDATE, DELETE, TRUNCATE ON TABLE
+  "approved_fact_version",
+  "fact_review_decision"
+FROM "novussync_app";--> statement-breakpoint
+CREATE OR REPLACE FUNCTION app_private.reject_fact_review_record_mutation()
+RETURNS trigger
+LANGUAGE plpgsql
+SECURITY INVOKER
+SET search_path = pg_catalog, public, app_private
+AS $$
+BEGIN
+  RAISE EXCEPTION USING
+    ERRCODE = '55000',
+    MESSAGE = 'fact review records are append-only';
+END;
+$$;--> statement-breakpoint
+REVOKE ALL ON FUNCTION app_private.reject_fact_review_record_mutation() FROM PUBLIC;--> statement-breakpoint
+CREATE TRIGGER approved_fact_version_reject_mutation
+BEFORE UPDATE OR DELETE ON "approved_fact_version"
+FOR EACH ROW EXECUTE FUNCTION app_private.reject_fact_review_record_mutation();--> statement-breakpoint
+CREATE TRIGGER fact_review_decision_reject_mutation
+BEFORE UPDATE OR DELETE ON "fact_review_decision"
+FOR EACH ROW EXECUTE FUNCTION app_private.reject_fact_review_record_mutation();
