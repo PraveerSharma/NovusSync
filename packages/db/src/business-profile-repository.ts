@@ -13,14 +13,14 @@ import {
   type BusinessProfileTenant,
 } from "@novussync/domain";
 
-import type { Database } from "./client.js";
+import type { Database } from "./client.ts";
 import {
   auditEvents,
   businessProfileDrafts,
   businessProfileDraftVersions,
   idempotencyRecords,
-} from "./schema.js";
-import { withTenantTransaction } from "./tenant-transaction.js";
+} from "./schema.ts";
+import { withTenantTransaction } from "./tenant-transaction.ts";
 
 export const BUSINESS_PROFILE_PERSISTENCE_ERROR_CODES = [
   "not_found",

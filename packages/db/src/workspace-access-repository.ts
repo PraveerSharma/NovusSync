@@ -6,7 +6,7 @@ import type {
   WorkspaceAccessRepositoryPort,
 } from "@novussync/application";
 
-import type { Database } from "./client.js";
+import type { Database } from "./client.ts";
 
 type WorkspaceAccessRow = {
   actor_id: string;

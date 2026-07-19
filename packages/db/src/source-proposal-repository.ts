@@ -21,7 +21,7 @@ import {
   type SourceProposalValue,
 } from "@novussync/domain";
 
-import type { Database } from "./client.js";
+import type { Database } from "./client.ts";
 import {
   approvedBusinessSources,
   auditEvents,
@@ -30,8 +30,8 @@ import {
   idempotencyRecords,
   sourceCaptures,
   sourceProposalBatches,
-} from "./schema.js";
-import { withTenantTransaction } from "./tenant-transaction.js";
+} from "./schema.ts";
+import { withTenantTransaction } from "./tenant-transaction.ts";
 
 export const SOURCE_PROPOSAL_PERSISTENCE_ERROR_CODES = [
   "not_found",

@@ -54,12 +54,21 @@ importers:
       '@fontsource-variable/newsreader':
         specifier: 5.2.10
         version: 5.2.10
+      '@novussync/application':
+        specifier: workspace:*
+        version: link:../../packages/application
       '@novussync/config':
         specifier: workspace:*
         version: link:../../packages/config
+      '@novussync/db':
+        specifier: workspace:*
+        version: link:../../packages/db
       '@novussync/domain':
         specifier: workspace:*
         version: link:../../packages/domain
+      '@novussync/integrations':
+        specifier: workspace:*
+        version: link:../../packages/integrations
       '@novussync/ui':
         specifier: workspace:*
         version: link:../../packages/ui

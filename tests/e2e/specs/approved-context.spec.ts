@@ -10,6 +10,7 @@ test.describe("approved context workspace", () => {
     await expect(
       page.getByRole("heading", { name: "Use what is true. Block what is not." }),
     ).toBeVisible();
+    await expect(page.getByTestId("context-source")).toContainText("Synthetic workspace");
     await expect(
       page.getByTestId("context-card-business-name").getByText("Northstar Yoga Studio"),
     ).toBeVisible();
@@ -29,6 +30,7 @@ test.describe("approved context workspace", () => {
 
     await page.getByRole("tab", { name: /Concierge response/ }).click();
 
+    await expect(page).toHaveURL(/useCase=concierge/);
     await expect(bookingRoute).toHaveAttribute("data-context-status", "usable");
     await expect(bookingRoute.getByText("Share the approved external booking link")).toBeVisible();
     await expect(page.getByTestId("metric-usable").getByText("02", { exact: true })).toBeVisible();
