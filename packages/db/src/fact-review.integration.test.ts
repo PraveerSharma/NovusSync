@@ -4,8 +4,10 @@ import type { PoolClient } from "pg";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import {
+  executeFactReverification,
   executeFactReview,
   FactReviewAccessError,
+  queryFactReverificationQueue,
   type FactReviewCommandContext,
   type SourceProposalPersistenceContext,
 } from "@novussync/application";
@@ -18,6 +20,14 @@ import {
 } from "@novussync/domain";
 
 import { createDatabase, type DatabaseHandle } from "./client.js";
+import {
+  createApprovedContextRepository,
+  type ApprovedContextPersistenceRepository,
+} from "./approved-context-repository.js";
+import {
+  createFactReverificationRepository,
+  type FactReverificationRepository,
+} from "./fact-reverification-repository.js";
 import { createFactReviewRepository, type FactReviewRepository } from "./fact-review-repository.js";
 import {
   createSourceProposalRepository,
@@ -45,6 +55,8 @@ const fixture = Object.freeze({
 let database: DatabaseHandle;
 let repository: FactReviewRepository;
 let sourceRepository: SourceProposalRepository;
+let approvedContextRepository: ApprovedContextPersistenceRepository;
+let reverificationRepository: FactReverificationRepository;
 
 describe("tenant-scoped fact-review persistence", () => {
   beforeAll(async () => {
@@ -55,6 +67,8 @@ describe("tenant-scoped fact-review persistence", () => {
     });
     repository = createFactReviewRepository(database.db);
     sourceRepository = createSourceProposalRepository(database.db);
+    approvedContextRepository = createApprovedContextRepository(database.db);
+    reverificationRepository = createFactReverificationRepository(database.db);
     await seedTenantsAndProfiles();
   });
 
@@ -244,6 +258,95 @@ describe("tenant-scoped fact-review persistence", () => {
         (error.name === "FactReviewPersistenceError" && code === "version_conflict")
       );
     });
+  });
+
+  it("expires time-sensitive facts and atomically revalidates them with audit evidence", async () => {
+    const candidate = await persistCandidate({ fieldKey: "offer.price", value: "INR 499" });
+    const reviewedAt = new Date(Date.now() + 5 * 60_000);
+    const reverifiedAt = new Date(reviewedAt.getTime() + 31 * 24 * 60 * 60 * 1_000);
+    const approved = await executeFactReview(
+      factContextA(),
+      {
+        candidateId: candidate.candidateId,
+        expectedCurrentFactVersion: 0,
+        expectedDecisionVersion: 0,
+        action: "verify",
+        decisionId: "decision-" + randomUUID(),
+        factVersionId: "fact-version-" + randomUUID(),
+        idempotencyKey: "fact-review:" + randomUUID(),
+      },
+      { repository, now: () => reviewedAt },
+    );
+    expect(approved.kind).toBe("approved");
+    if (approved.kind !== "approved") return;
+
+    const queueContext = { ...factContextA(), requestId: randomUUID() };
+    const queue = await queryFactReverificationQueue(
+      queueContext,
+      { profileId: fixture.profileA },
+      { repository: approvedContextRepository, now: () => reverifiedAt },
+    );
+    const expired = queue.items.find(
+      (item) => item.factVersionId === approved.factVersion.factVersionId,
+    );
+    expect(expired).toMatchObject({ status: "expired", canReverify: true });
+
+    const command = {
+      profileId: fixture.profileA,
+      factVersionId: approved.factVersion.factVersionId,
+      expectedVersion: 1,
+      newFactVersionId: "fact-version-" + randomUUID(),
+      idempotencyKey: "fact-reverification:" + approved.factVersion.factVersionId + ":1",
+    };
+    const result = await executeFactReverification(queueContext, command, {
+      readRepository: approvedContextRepository,
+      writeRepository: reverificationRepository,
+      now: () => reverifiedAt,
+    });
+    const replay = await executeFactReverification(queueContext, command, {
+      readRepository: approvedContextRepository,
+      writeRepository: reverificationRepository,
+      now: () => new Date(reverifiedAt.getTime() + 1_000),
+    });
+
+    expect(replay).toEqual(result);
+    expect(result).toMatchObject({
+      version: 2,
+      supersedesFactVersionId: approved.factVersion.factVersionId,
+      reasonCode: "OWNER_REVERIFIED_UNCHANGED",
+    });
+    const persisted = await database.pool.query(
+      `select version, value, reason_code, expires_at
+       from approved_fact_version
+       where organization_id = $1 and workspace_id = $2 and profile_id = $3 and field_key = 'offer.price'
+       order by version`,
+      [fixture.organizationA, fixture.workspaceA, fixture.profileA],
+    );
+    expect(persisted.rows).toHaveLength(2);
+    expect(persisted.rows[0]?.expires_at.toISOString()).toBe(
+      new Date(reviewedAt.getTime() + 30 * 24 * 60 * 60 * 1_000).toISOString(),
+    );
+    expect(persisted.rows[1]).toMatchObject({
+      version: 2,
+      value: "INR 499",
+      reason_code: "OWNER_REVERIFIED_UNCHANGED",
+    });
+    expect(persisted.rows[1]?.expires_at.toISOString()).toBe(result.expiresAt);
+
+    const audit = await database.pool.query(
+      `select action, actor_id, policy_result, evidence_state, safe_metadata
+       from audit_event
+       where organization_id = $1 and workspace_id = $2 and idempotency_key = $3`,
+      [fixture.organizationA, fixture.workspaceA, command.idempotencyKey],
+    );
+    expect(audit.rows).toHaveLength(1);
+    expect(audit.rows[0]).toMatchObject({
+      action: "business_brain.fact_reverified",
+      actor_id: fixture.actorA,
+      policy_result: "allow",
+      evidence_state: "verified",
+    });
+    expect(audit.rows[0]?.safe_metadata).not.toHaveProperty("value");
   });
 
   it("forces tenant RLS, least privilege, and append-only fact history", async () => {

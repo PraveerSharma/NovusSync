@@ -7,12 +7,13 @@ import type {
   FactReviewRepositoryPort,
   FactReviewRequest,
 } from "@novussync/application";
-import type {
-  ApprovedFactVersion,
-  FactReviewDecision,
-  FactReviewResult,
-  FactValue,
-  ReviewableFactCandidate,
+import {
+  resolveFactFreshness,
+  type ApprovedFactVersion,
+  type FactReviewDecision,
+  type FactReviewResult,
+  type FactValue,
+  type ReviewableFactCandidate,
 } from "@novussync/domain";
 
 import type { Database } from "./client.ts";
@@ -153,6 +154,17 @@ export function createFactReviewRepository(database: Database): FactReviewReposi
               verifiedByActorId: input.review.factVersion.verifiedByActorId,
               verifiedByRole: "owner",
               verifiedAt: new Date(input.review.factVersion.verifiedAt),
+              expiresAt: resolveFactFreshness(
+                input.review.factVersion.fieldKey,
+                input.review.factVersion.verifiedAt,
+              )?.expiresAt
+                ? new Date(
+                    resolveFactFreshness(
+                      input.review.factVersion.fieldKey,
+                      input.review.factVersion.verifiedAt,
+                    )!.expiresAt,
+                  )
+                : null,
             });
           }
 

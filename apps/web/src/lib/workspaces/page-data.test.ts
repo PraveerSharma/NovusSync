@@ -3,6 +3,7 @@ import test from "node:test";
 
 import {
   buildApprovedContextHref,
+  buildFactReverificationHref,
   createSyntheticWorkspaceDirectoryPageData,
   createUnavailableWorkspaceDirectoryPageData,
 } from "./page-data.ts";
@@ -20,6 +21,18 @@ test("builds a scoped approved-context route without requiring a UUID profile ID
   assert.equal(url.searchParams.get("useCase"), "campaign");
 });
 
+test("builds a scoped fact-freshness route for the selected profile", () => {
+  const href = buildFactReverificationHref({
+    organizationId: "10000000-0000-4000-8000-000000000001",
+    workspaceId: "10000000-0000-4000-8000-000000000101",
+    profileId: "northstar-yoga-primary",
+  });
+  const url = new URL(href, "https://novussync.example");
+
+  assert.equal(url.pathname, "/business-profile/reverification");
+  assert.equal(url.searchParams.get("profileId"), "northstar-yoga-primary");
+});
+
 test("provides a visibly synthetic, minimized acceptance fixture", () => {
   const data = createSyntheticWorkspaceDirectoryPageData();
   assert.equal(data.status, "ready");
@@ -29,6 +42,10 @@ test("provides a visibly synthetic, minimized acceptance fixture", () => {
     assert.equal(data.workspaces.length, 1);
     assert.equal(data.workspaces[0]?.profiles.length, 1);
     assert.match(data.workspaces[0]?.profiles[0]?.contextHref ?? "", /useCase=campaign/);
+    assert.match(
+      data.workspaces[0]?.profiles[0]?.freshnessHref ?? "",
+      /business-profile\/reverification/,
+    );
   }
 });
 

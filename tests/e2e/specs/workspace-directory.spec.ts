@@ -22,6 +22,9 @@ test("selects a tenant-scoped business profile and opens approved context", asyn
     "href",
     /profileId=northstar-yoga-primary.*useCase=campaign/,
   );
+  await expect(
+    page.getByRole("link", { name: "Review fact freshness for Northstar Yoga Studio" }),
+  ).toHaveAttribute("href", /business-profile\/reverification.*profileId=northstar-yoga-primary/);
 
   await contextLink.click();
   await expect(page).toHaveURL(/\/business-profile\/context\?.*profileId=northstar-yoga-primary/);
