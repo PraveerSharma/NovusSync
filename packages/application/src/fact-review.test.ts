@@ -13,6 +13,7 @@ import {
   type FactReviewCommandContext,
   type FactReviewRepositoryContext,
   type FactReviewRepositoryPort,
+  type FactReviewRequest,
 } from "./fact-review.ts";
 
 const candidate: ReviewableFactCandidate = Object.freeze({
@@ -55,6 +56,12 @@ class FakeFactReviewRepository implements FactReviewRepositoryPort {
   candidate: ReviewableFactCandidate | null = candidate;
   currentFact: ApprovedFactVersion | null = null;
   committed: FactReviewResult | null = null;
+  replay: FactReviewResult | null = null;
+
+  async findReviewByIdempotency(): Promise<FactReviewResult | null> {
+    this.calls.push("findReviewByIdempotency");
+    return this.replay;
+  }
 
   async findCandidate(): Promise<ReviewableFactCandidate | null> {
     this.calls.push("findCandidate");
@@ -69,6 +76,7 @@ class FakeFactReviewRepository implements FactReviewRepositoryPort {
   async commitReview(input: {
     context: FactReviewRepositoryContext;
     idempotencyKey: string;
+    request: FactReviewRequest;
     review: FactReviewResult;
   }): Promise<FactReviewResult> {
     this.calls.push("commitReview");
@@ -96,8 +104,32 @@ describe("executeFactReview", () => {
     });
 
     assert.equal(result.kind, "approved");
-    assert.deepEqual(repository.calls, ["findCandidate", "findCurrentFact", "commitReview"]);
+    assert.deepEqual(repository.calls, [
+      "findReviewByIdempotency",
+      "findCandidate",
+      "findCurrentFact",
+      "commitReview",
+    ]);
     assert.equal(repository.committed?.decision.decidedByActorId, "actor-owner-001");
+  });
+
+  it("returns an authorized tenant-scoped replay before loading changed fact state", async () => {
+    const firstRepository = new FakeFactReviewRepository();
+    const first = await executeFactReview(ownerContext, command, {
+      repository: firstRepository,
+      now: () => new Date("2026-07-19T02:00:00.000Z"),
+    });
+    const replayRepository = new FakeFactReviewRepository();
+    replayRepository.replay = first;
+    replayRepository.candidate = null;
+
+    const replay = await executeFactReview(ownerContext, command, {
+      repository: replayRepository,
+      now: () => new Date("2026-07-19T03:00:00.000Z"),
+    });
+
+    assert.deepEqual(replay, first);
+    assert.deepEqual(replayRepository.calls, ["findReviewByIdempotency"]);
   });
 
   it("rejects staff and expired sessions before repository access", async () => {
@@ -137,6 +169,6 @@ describe("executeFactReview", () => {
       (error: unknown) =>
         error instanceof FactReviewAccessError && error.code === "FACT_REVIEW_CANDIDATE_NOT_FOUND",
     );
-    assert.deepEqual(repository.calls, ["findCandidate"]);
+    assert.deepEqual(repository.calls, ["findReviewByIdempotency", "findCandidate"]);
   });
 });

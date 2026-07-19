@@ -71,6 +71,13 @@
       "when": 1784412033260,
       "tag": "0009_source_proposal_persistence",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1784438532696,
+      "tag": "0010_fact_review_persistence",
+      "breakpoints": true
     }
   ]
 }

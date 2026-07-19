@@ -1,6 +1,6 @@
 # BRN-003A Owner Fact Review
 
-**Status:** Implemented locally; release verification pending  
+**Status:** Released to the protected Preview from main commit `d34f0c6`
 **Boundary:** Synthetic/test only; no database effect, profile mutation, provider call, or real customer data
 
 ## Purpose
