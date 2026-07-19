@@ -48,6 +48,7 @@
 - Start external MCP access read-only and project-scoped. Do not connect production, run migrations, change environment variables, deploy, purchase a plan, or expose real Lead/customer data until the applicable story, Gate G0/OD-033 evidence, and user authorization permit it.
 - Ask the user just in time when login/authorization, account or project creation, project linking, credentials, billing approval, provider-console action, a named human review, or another external approval is required. Never request or print secrets in chat or commit them to Git.
 - UI skills/plugins must implement the accepted source-owned, accessible design system and WCAG 2.2 AA boundary. They may accelerate exploration and verification but cannot introduce an opaque design-system runtime, hard-code yoga behavior into the generic core, or bypass exact approval and deterministic policy.
+- Invoke the installed `ui-ux-pro-max` skill for UI/UX design, implementation, or review work. Treat its generated recommendations as advisory: accepted NovusSync brand/product decisions, source-owned tokens/components, existing page patterns, WCAG 2.2 AA, reduced-motion, and exact approval boundaries take precedence. Do not persist or force-regenerate its suggested design-system files unless the applicable story explicitly authorizes that source-of-truth change.
 
 ## Working Rules
 
