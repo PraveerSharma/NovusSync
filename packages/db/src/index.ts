@@ -34,3 +34,12 @@ export type {
   SourceProposalPersistenceErrorCode,
   SourceProposalRepository,
 } from "./source-proposal-repository.js";
+
+export {
+  FactReviewPersistenceError,
+  createFactReviewRepository,
+} from "./fact-review-repository.js";
+export type {
+  FactReviewPersistenceErrorCode,
+  FactReviewRepository,
+} from "./fact-review-repository.js";

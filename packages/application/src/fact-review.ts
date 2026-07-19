@@ -33,7 +33,14 @@ export type FactReviewRepositoryContext = Readonly<{
   actorId: string;
 }>;
 
+export type FactReviewRequest = Readonly<Omit<ExecuteFactReviewInput, "idempotencyKey">>;
+
 export interface FactReviewRepositoryPort {
+  findReviewByIdempotency(
+    context: FactReviewRepositoryContext,
+    idempotencyKey: string,
+    request: FactReviewRequest,
+  ): Promise<FactReviewResult | null>;
   findCandidate(
     context: FactReviewRepositoryContext,
     candidateId: string,
@@ -47,6 +54,7 @@ export interface FactReviewRepositoryPort {
     input: Readonly<{
       context: FactReviewRepositoryContext;
       idempotencyKey: string;
+      request: FactReviewRequest;
       review: FactReviewResult;
     }>,
   ): Promise<FactReviewResult>;
@@ -86,6 +94,13 @@ export async function executeFactReview(
     tenant: Object.freeze({ ...context.tenant }),
     actorId: context.actor.id,
   });
+  const request = createReviewRequest(input, candidateId);
+  const replay = await dependencies.repository.findReviewByIdempotency(
+    repositoryContext,
+    idempotencyKey,
+    request,
+  );
+  if (replay) return replay;
 
   const candidate = await dependencies.repository.findCandidate(repositoryContext, candidateId);
   if (!candidate || candidate.tenantId !== context.tenant.workspaceId) {
@@ -121,7 +136,24 @@ export async function executeFactReview(
   return dependencies.repository.commitReview({
     context: repositoryContext,
     idempotencyKey,
+    request,
     review,
+  });
+}
+
+function createReviewRequest(
+  input: ExecuteFactReviewInput,
+  candidateId: string,
+): FactReviewRequest {
+  return Object.freeze({
+    candidateId,
+    expectedCurrentFactVersion: input.expectedCurrentFactVersion,
+    expectedDecisionVersion: input.expectedDecisionVersion,
+    action: input.action,
+    ...(input.reviewedValue !== undefined ? { reviewedValue: input.reviewedValue } : {}),
+    ...(input.reasonCode !== undefined ? { reasonCode: input.reasonCode } : {}),
+    decisionId: input.decisionId,
+    ...(input.factVersionId !== undefined ? { factVersionId: input.factVersionId } : {}),
   });
 }
 

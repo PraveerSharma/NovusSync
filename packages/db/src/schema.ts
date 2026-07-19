@@ -1095,3 +1095,244 @@ export const factCandidateReviewDecisions = pgTable(
     }),
   ],
 );
+
+export const approvedFactVersions = pgTable(
+  "approved_fact_version",
+  {
+    organizationId: uuid("organization_id").notNull(),
+    workspaceId: uuid("workspace_id").notNull(),
+    factVersionId: text("fact_version_id").notNull(),
+    profileId: text("profile_id").notNull(),
+    fieldKey: text("field_key").notNull(),
+    version: integer("version").notNull(),
+    value: jsonb("value").$type<unknown>().notNull(),
+    state: text("state", { enum: ["approved"] }).notNull(),
+    sourceCandidateId: text("source_candidate_id").notNull(),
+    sourceId: text("source_id").notNull(),
+    captureId: text("capture_id").notNull(),
+    sourceLocation: text("source_location").notNull(),
+    sourceReference: text("source_reference").notNull(),
+    sourceCapturedAt: timestamp("source_captured_at", { withTimezone: true }).notNull(),
+    extractorId: text("extractor_id").notNull(),
+    extractorVersion: text("extractor_version").notNull(),
+    reviewAction: text("review_action", {
+      enum: ["verify", "correct_and_verify", "resolve_conflict"],
+    }).notNull(),
+    reasonCode: text("reason_code").notNull(),
+    supersedesFactVersionId: text("supersedes_fact_version_id"),
+    conflictKind: text("conflict_kind", {
+      enum: ["existing_value", "source_disagreement", "stale_source_label", "provider_conflict"],
+    }),
+    conflictReasonCode: text("conflict_reason_code"),
+    verifiedByActorId: uuid("verified_by_actor_id")
+      .notNull()
+      .references(() => actors.id, { onDelete: "restrict" }),
+    verifiedByRole: text("verified_by_role", { enum: ["owner"] }).notNull(),
+    verifiedAt: timestamp("verified_at", { withTimezone: true }).notNull(),
+    recordedAt: timestamp("recorded_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    primaryKey({
+      name: "approved_fact_version_primary",
+      columns: [table.organizationId, table.workspaceId, table.factVersionId],
+    }),
+    foreignKey({
+      name: "approved_fact_version_candidate_fk",
+      columns: [table.organizationId, table.workspaceId, table.sourceCandidateId],
+      foreignColumns: [
+        factCandidates.organizationId,
+        factCandidates.workspaceId,
+        factCandidates.candidateId,
+      ],
+    }).onDelete("restrict"),
+    foreignKey({
+      name: "approved_fact_version_capture_fk",
+      columns: [table.organizationId, table.workspaceId, table.sourceId, table.captureId],
+      foreignColumns: [
+        sourceCaptures.organizationId,
+        sourceCaptures.workspaceId,
+        sourceCaptures.sourceId,
+        sourceCaptures.captureId,
+      ],
+    }).onDelete("restrict"),
+    foreignKey({
+      name: "approved_fact_version_supersedes_fk",
+      columns: [table.organizationId, table.workspaceId, table.supersedesFactVersionId],
+      foreignColumns: [table.organizationId, table.workspaceId, table.factVersionId],
+    }).onDelete("restrict"),
+    uniqueIndex("approved_fact_version_field_version_unique").on(
+      table.organizationId,
+      table.workspaceId,
+      table.profileId,
+      table.fieldKey,
+      table.version,
+    ),
+    index("approved_fact_version_current_idx").on(
+      table.organizationId,
+      table.workspaceId,
+      table.profileId,
+      table.fieldKey,
+      table.version,
+    ),
+    check("approved_fact_version_id_present", sql`length(${table.factVersionId}) > 0`),
+    check(
+      "approved_fact_version_field_key_format",
+      sql`${table.fieldKey} ~ '^[a-z][a-zA-Z0-9]*(\\.[a-z][a-zA-Z0-9]*)+$'`,
+    ),
+    check("approved_fact_version_version_positive", sql`${table.version} > 0`),
+    check("approved_fact_version_state_fixed", sql`${table.state} = 'approved'`),
+    check(
+      "approved_fact_version_action_allowed",
+      sql`${table.reviewAction} in ('verify', 'correct_and_verify', 'resolve_conflict')`,
+    ),
+    check(
+      "approved_fact_version_reason_format",
+      sql`${table.reasonCode} ~ '^[A-Z][A-Z0-9_-]{0,63}$'`,
+    ),
+    check(
+      "approved_fact_version_supersession_shape",
+      sql`(${table.version} = 1 and ${table.supersedesFactVersionId} is null)
+        or (${table.version} > 1 and ${table.supersedesFactVersionId} is not null)`,
+    ),
+    check(
+      "approved_fact_version_conflict_shape",
+      sql`(${table.reviewAction} = 'resolve_conflict'
+          and ${table.conflictKind} is not null
+          and ${table.conflictReasonCode} is not null)
+        or (${table.reviewAction} <> 'resolve_conflict'
+          and ${table.conflictKind} is null
+          and ${table.conflictReasonCode} is null)`,
+    ),
+    check(
+      "approved_fact_version_conflict_reason_format",
+      sql`${table.conflictReasonCode} is null
+        or ${table.conflictReasonCode} ~ '^[A-Z][A-Z0-9_-]{0,63}$'`,
+    ),
+    check("approved_fact_version_owner_fixed", sql`${table.verifiedByRole} = 'owner'`),
+    pgPolicy("approved_fact_version_tenant_select", {
+      to: novussyncAppRole,
+      for: "select",
+      using: workspaceScope(table.organizationId, table.workspaceId),
+    }),
+    pgPolicy("approved_fact_version_tenant_insert", {
+      to: novussyncAppRole,
+      for: "insert",
+      withCheck: workspaceScope(table.organizationId, table.workspaceId),
+    }),
+  ],
+);
+
+export const factReviewDecisions = pgTable(
+  "fact_review_decision",
+  {
+    organizationId: uuid("organization_id").notNull(),
+    workspaceId: uuid("workspace_id").notNull(),
+    decisionId: text("decision_id").notNull(),
+    candidateId: text("candidate_id").notNull(),
+    profileId: text("profile_id").notNull(),
+    fieldKey: text("field_key").notNull(),
+    decisionVersion: integer("decision_version").notNull(),
+    action: text("action", {
+      enum: ["verify", "correct_and_verify", "reject", "resolve_conflict"],
+    }).notNull(),
+    reasonCode: text("reason_code").notNull(),
+    candidateDisposition: text("candidate_disposition", {
+      enum: ["approved", "rejected"],
+    }).notNull(),
+    approvedFactVersionId: text("approved_fact_version_id"),
+    currentFactVersionId: text("current_fact_version_id"),
+    profileApplicationStatus: text("profile_application_status", {
+      enum: ["not_applied"],
+    }).notNull(),
+    decidedByActorId: uuid("decided_by_actor_id")
+      .notNull()
+      .references(() => actors.id, { onDelete: "restrict" }),
+    decidedByRole: text("decided_by_role", { enum: ["owner"] }).notNull(),
+    decidedAt: timestamp("decided_at", { withTimezone: true }).notNull(),
+    recordedAt: timestamp("recorded_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    primaryKey({
+      name: "fact_review_decision_primary",
+      columns: [table.organizationId, table.workspaceId, table.decisionId],
+    }),
+    foreignKey({
+      name: "fact_review_decision_candidate_fk",
+      columns: [table.organizationId, table.workspaceId, table.candidateId],
+      foreignColumns: [
+        factCandidates.organizationId,
+        factCandidates.workspaceId,
+        factCandidates.candidateId,
+      ],
+    }).onDelete("restrict"),
+    foreignKey({
+      name: "fact_review_decision_approved_fact_fk",
+      columns: [table.organizationId, table.workspaceId, table.approvedFactVersionId],
+      foreignColumns: [
+        approvedFactVersions.organizationId,
+        approvedFactVersions.workspaceId,
+        approvedFactVersions.factVersionId,
+      ],
+    }).onDelete("restrict"),
+    foreignKey({
+      name: "fact_review_decision_current_fact_fk",
+      columns: [table.organizationId, table.workspaceId, table.currentFactVersionId],
+      foreignColumns: [
+        approvedFactVersions.organizationId,
+        approvedFactVersions.workspaceId,
+        approvedFactVersions.factVersionId,
+      ],
+    }).onDelete("restrict"),
+    uniqueIndex("fact_review_decision_version_unique").on(
+      table.organizationId,
+      table.workspaceId,
+      table.candidateId,
+      table.decisionVersion,
+    ),
+    index("fact_review_decision_time_idx").on(
+      table.organizationId,
+      table.workspaceId,
+      table.candidateId,
+      table.decidedAt,
+    ),
+    check("fact_review_decision_id_present", sql`length(${table.decisionId}) > 0`),
+    check(
+      "fact_review_decision_field_key_format",
+      sql`${table.fieldKey} ~ '^[a-z][a-zA-Z0-9]*(\\.[a-z][a-zA-Z0-9]*)+$'`,
+    ),
+    check("fact_review_decision_version_positive", sql`${table.decisionVersion} > 0`),
+    check(
+      "fact_review_decision_action_allowed",
+      sql`${table.action} in ('verify', 'correct_and_verify', 'reject', 'resolve_conflict')`,
+    ),
+    check(
+      "fact_review_decision_reason_format",
+      sql`${table.reasonCode} ~ '^[A-Z][A-Z0-9_-]{0,63}$'`,
+    ),
+    check(
+      "fact_review_decision_result_shape",
+      sql`(${table.candidateDisposition} = 'approved'
+          and ${table.action} <> 'reject'
+          and ${table.approvedFactVersionId} is not null
+          and ${table.currentFactVersionId} is null)
+        or (${table.candidateDisposition} = 'rejected'
+          and ${table.action} = 'reject'
+          and ${table.approvedFactVersionId} is null)`,
+    ),
+    check(
+      "fact_review_decision_effect_fixed",
+      sql`${table.profileApplicationStatus} = 'not_applied'
+        and ${table.decidedByRole} = 'owner'`,
+    ),
+    pgPolicy("fact_review_decision_tenant_select", {
+      to: novussyncAppRole,
+      for: "select",
+      using: workspaceScope(table.organizationId, table.workspaceId),
+    }),
+    pgPolicy("fact_review_decision_tenant_insert", {
+      to: novussyncAppRole,
+      for: "insert",
+      withCheck: workspaceScope(table.organizationId, table.workspaceId),
+    }),
+  ],
+);
