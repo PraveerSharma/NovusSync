@@ -85,6 +85,13 @@
       "when": 1784446586198,
       "tag": "0011_approved_context_persistence",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1784450403071,
+      "tag": "0012_workspace_directory",
+      "breakpoints": true
     }
   ]
 }

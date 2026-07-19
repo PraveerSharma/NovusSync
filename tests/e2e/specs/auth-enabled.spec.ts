@@ -17,6 +17,13 @@ test("protects the business profile route for anonymous visitors", async ({ page
   await expect(page.getByRole("heading", { level: 2, name: "Open your workspace" })).toBeVisible();
 });
 
+test("protects the workspace directory for anonymous visitors", async ({ page }) => {
+  await page.goto("/workspaces");
+
+  await expect(page).toHaveURL(/\/sign-in\?next=%2Fworkspaces$/);
+  await expect(page.getByRole("heading", { level: 2, name: "Open your workspace" })).toBeVisible();
+});
+
 test("fails closed on callback errors and never follows an external next destination", async ({
   page,
 }) => {

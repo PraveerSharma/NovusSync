@@ -1,0 +1,486 @@
+.shell {
+  --paper: #f2eee5;
+  --ink: #17251f;
+  --muted: #5d675f;
+  --line: rgba(23, 37, 31, 0.16);
+  --surface: #fffdf8;
+  --accent: #d85f34;
+  --accent-dark: #a43d20;
+  position: relative;
+  min-height: 100dvh;
+  overflow: hidden;
+  background: var(--paper);
+  color: var(--ink);
+  padding: 0 clamp(1rem, 4vw, 4.5rem);
+}
+
+.orbit {
+  position: absolute;
+  z-index: 0;
+  width: min(52vw, 44rem);
+  aspect-ratio: 1;
+  border: 1px solid rgba(23, 37, 31, 0.11);
+  border-radius: 50%;
+  top: -28rem;
+  right: -8rem;
+  pointer-events: none;
+}
+
+.orbit::after {
+  content: "";
+  position: absolute;
+  width: 42%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--accent);
+  right: 4%;
+  bottom: 7%;
+  opacity: 0.09;
+}
+
+.topbar,
+.intro,
+.directory,
+.unavailable,
+.footer {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 88rem);
+  margin-inline: auto;
+}
+
+.topbar {
+  min-height: 5.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--line);
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  color: var(--ink);
+  text-decoration: none;
+  font-weight: 760;
+}
+
+.brandMark {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: var(--ink);
+  color: var(--surface);
+  font-family: Georgia, serif;
+  font-size: 1.05rem;
+}
+
+.dashboardLink {
+  color: var(--ink);
+  text-decoration: none;
+  font-size: 0.88rem;
+  font-weight: 720;
+  border-bottom: 1px solid currentColor;
+  padding-bottom: 0.2rem;
+}
+
+.intro {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 3rem;
+  padding: clamp(3rem, 7vw, 6.4rem) 0 clamp(2.5rem, 5vw, 4.4rem);
+}
+
+.eyebrow,
+.statusLabel,
+.organizationName {
+  margin: 0;
+  color: var(--accent-dark);
+  font-size: 0.74rem;
+  line-height: 1;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.intro h1 {
+  max-width: 12ch;
+  margin: 0.8rem 0 1.2rem;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(3.2rem, 7.2vw, 7rem);
+  font-weight: 500;
+  line-height: 0.91;
+  text-wrap: balance;
+}
+
+.lede {
+  max-width: 43rem;
+  margin: 0;
+  color: var(--muted);
+  font-size: clamp(1rem, 1.5vw, 1.2rem);
+  line-height: 1.65;
+  text-wrap: pretty;
+}
+
+.trustNote {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  white-space: nowrap;
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding-bottom: 0.4rem;
+}
+
+.trustDot {
+  width: 0.56rem;
+  height: 0.56rem;
+  border-radius: 50%;
+  background: #28805e;
+  box-shadow: 0 0 0 0.3rem rgba(40, 128, 94, 0.12);
+}
+
+.directory {
+  padding-bottom: 3rem;
+}
+
+.directoryMeta {
+  min-height: 3.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.directoryMeta p {
+  margin: 0;
+}
+
+.directoryMeta strong {
+  color: var(--ink);
+  font-size: 1rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.workspaceGrid {
+  display: grid;
+  gap: 1rem;
+}
+
+.workspaceCard {
+  background: var(--surface);
+  border: 1px solid rgba(23, 37, 31, 0.12);
+  box-shadow: 0 0.8rem 2.5rem rgba(38, 42, 34, 0.055);
+}
+
+.workspaceHeader {
+  display: grid;
+  grid-template-columns: 3.4rem minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1.1rem;
+  padding: clamp(1.25rem, 2.8vw, 2rem);
+  border-bottom: 1px solid var(--line);
+}
+
+.workspaceNumber {
+  display: grid;
+  place-items: center;
+  width: 3.1rem;
+  height: 3.1rem;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  color: var(--muted);
+  font-family: Georgia, serif;
+  font-size: 0.88rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.organizationName {
+  margin-bottom: 0.45rem;
+  color: var(--muted);
+}
+
+.workspaceHeader h2 {
+  margin: 0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(1.55rem, 3vw, 2.2rem);
+  font-weight: 500;
+  line-height: 1.05;
+}
+
+.roleBadge {
+  align-self: start;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0.48rem 0.72rem;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 760;
+}
+
+.profileList {
+  padding: 0 clamp(1.25rem, 2.8vw, 2rem);
+}
+
+.profileRow {
+  display: grid;
+  grid-template-columns: minmax(14rem, 1.15fr) minmax(20rem, 1fr) auto;
+  align-items: center;
+  gap: 2rem;
+  padding: 1.7rem 0;
+}
+
+.profileRow + .profileRow {
+  border-top: 1px solid var(--line);
+}
+
+.profileIdentity {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+.profileMonogram {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 2.65rem;
+  height: 2.65rem;
+  border-radius: 0.7rem;
+  background: #e4dfd2;
+  color: var(--ink);
+  font-family: Georgia, serif;
+  font-size: 1.25rem;
+}
+
+.profileIdentity h3 {
+  overflow: hidden;
+  margin: 0 0 0.28rem;
+  font-size: 1rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.profileIdentity p {
+  overflow: hidden;
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.profileMetrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 0;
+}
+
+.profileMetrics div {
+  min-width: 0;
+}
+
+.profileMetrics dt {
+  margin-bottom: 0.35rem;
+  color: var(--muted);
+  font-size: 0.67rem;
+  font-weight: 700;
+}
+
+.profileMetrics dd {
+  margin: 0;
+  color: var(--ink);
+  font-size: 0.86rem;
+  font-weight: 760;
+  font-variant-numeric: tabular-nums;
+}
+
+.contextLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-width: 12.5rem;
+  border: 1px solid var(--ink);
+  color: var(--ink);
+  padding: 0.8rem 0.9rem;
+  text-decoration: none;
+  font-size: 0.74rem;
+  font-weight: 800;
+  transition:
+    transform 160ms ease-out,
+    background-color 160ms ease-out,
+    color 160ms ease-out;
+}
+
+.contextLink:hover {
+  transform: translateY(-2px);
+  background: var(--ink);
+  color: var(--surface);
+}
+
+.contextLink:focus-visible,
+.dashboardLink:focus-visible,
+.brand:focus-visible,
+.profileEmpty a:focus-visible,
+.empty a:focus-visible,
+.unavailable a:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 4px;
+}
+
+.profileEmpty,
+.empty,
+.unavailable {
+  padding: clamp(2rem, 5vw, 4rem);
+}
+
+.profileEmpty {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  color: var(--muted);
+}
+
+.profileEmpty p {
+  margin: 0;
+}
+
+.profileEmpty a,
+.empty a,
+.unavailable a {
+  color: var(--ink);
+  font-weight: 780;
+  text-underline-offset: 0.3rem;
+}
+
+.empty,
+.unavailable {
+  background: var(--surface);
+  border: 1px solid var(--line);
+}
+
+.empty h2,
+.unavailable h2 {
+  max-width: 24ch;
+  margin: 0.75rem 0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(1.8rem, 4vw, 3.2rem);
+  font-weight: 500;
+  line-height: 1.05;
+  text-wrap: balance;
+}
+
+.empty p:not(.statusLabel),
+.unavailable p:not(.statusLabel) {
+  max-width: 42rem;
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+.footer {
+  min-height: 5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 0.7rem;
+}
+
+.footer p {
+  margin: 0;
+}
+
+@media (max-width: 960px) {
+  .profileRow {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .profileMetrics {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+}
+
+@media (max-width: 680px) {
+  .shell {
+    padding-inline: 1rem;
+  }
+
+  .topbar {
+    min-height: 4.6rem;
+  }
+
+  .intro {
+    grid-template-columns: 1fr;
+    align-items: start;
+    gap: 1.5rem;
+    padding-block: 3.2rem 2.4rem;
+  }
+
+  .intro h1 {
+    font-size: clamp(3rem, 15vw, 4.8rem);
+  }
+
+  .workspaceHeader {
+    grid-template-columns: 2.6rem minmax(0, 1fr);
+  }
+
+  .workspaceNumber {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+
+  .roleBadge {
+    grid-column: 2;
+    justify-self: start;
+  }
+
+  .profileRow {
+    grid-template-columns: 1fr;
+    gap: 1.3rem;
+  }
+
+  .profileMetrics {
+    grid-column: auto;
+    grid-row: auto;
+  }
+
+  .contextLink {
+    width: 100%;
+  }
+
+  .profileEmpty,
+  .footer {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .footer {
+    justify-content: center;
+    padding-block: 1.4rem;
+    gap: 0.4rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .contextLink {
+    transition: none;
+  }
+
+  .contextLink:hover {
+    transform: none;
+  }
+}

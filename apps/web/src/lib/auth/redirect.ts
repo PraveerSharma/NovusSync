@@ -1,6 +1,10 @@
 const DEFAULT_AUTH_DESTINATION = "/dashboard";
 
-const ALLOWED_AUTH_DESTINATIONS = new Set([DEFAULT_AUTH_DESTINATION, "/business-profile"]);
+const ALLOWED_AUTH_DESTINATIONS = new Set([
+  DEFAULT_AUTH_DESTINATION,
+  "/workspaces",
+  "/business-profile",
+]);
 
 export function safeAuthDestination(value: string | null | undefined): string {
   if (!value || value.includes("\\")) {
